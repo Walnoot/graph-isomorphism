@@ -30,6 +30,11 @@ class Color():
 
         return True
 
+    def createNbs(self, nbs):
+        if nbs == []:
+            print("Warning: Overwriting existing neightbours in color+"+str(self.index)+".")
+        self.neightbours = nbs
+
     def __cmp__(self, other):
         return self.index - other.index
 
@@ -67,37 +72,54 @@ def recolor(bg_1, bg_2):
 
     # refinement
     newColors = []
-    for c in colors:
-        # get all vertexes involved
-        tVertexes = [[],[]]
-        for v in bg_1:
-            if c.check(v):
-                tVertexes[0].append(v)
-        for v in bg_2:
-            if c.check(v):
-                tVertexes[1].append(v)
-        combinedList = tVertexes[0] + tVertexes[1]
-        if len(combinedList) == 0:
-             continue
-        
-        # manipulate
-        cList = []
-        for v in range(0, len(combinedList)):
-            lItem = []
-            for n in combinedList[v].nbs():
-                lItem.append(n._label)
-            lItem.sort()
-            cList.append((lItem, v))
-        cList.sort()
+    while True:
+        newColors = []
+        for c in colors:
+            # get all vertexes involved
+            tVertexes = [[],[]]
+            for v in bg_1:
+                if c.check(v):
+                    tVertexes[0].append(v)
+            for v in bg_2:
+                if c.check(v):
+                    tVertexes[1].append(v)
+            combinedList = tVertexes[0] + tVertexes[1]
+            if len(combinedList) == 0:
+                 continue
+            
+            # manipulate
+            cList = []
+            for v in range(0, len(combinedList)):
+                lItem = []
+                for n in combinedList[v].nbs():
+                    lItem.append(n._label)
+                lItem.sort()
+                cList.append((lItem, v))
+            cList.sort()
 
-        ## got here: cList = [(colorList, vertex)**], sorted on colorList
-        # todo: partition on colorList, add new colors to 'newColors'
-    if len(newColors) == 0:
-        print("Done!")
-        return
+            # remember color at start loop and change neightbours of 
+            nColor = None
+            colorHistory = cList[0][0]
+            cList[0][1]._label.createNbs(colorHistory)
 
-    colors = colors + newColors
+            for item in cList:
+                if item[0] != colorHistory:
+                    if nColor == None or nColor.check(item[1]) == False:
+                        colorHistor = item[0]
+                        nColor = Color(len(colors), len(colorHistory), colorHistory)
+                        newColors.append(nColor)
+                        item[1]._label = nColor
+                    else:
+                        item[1]._label = nColor
 
+        # no new colors: end of refining
+        if len(newColors) == 0:
+            print("Done!")
+            break
+
+        colors = colors + newColors
+
+    return colors
 
 def create_bg1():
     bg = graph(7)
