@@ -77,6 +77,15 @@ class vertex():
         Returns the degree of vertex <self>.
         """
         return len(self.inclist())
+
+    def __cmp__(self, other):
+        return 0
+
+    def __lt__(self, other):
+        return 0
+
+    def __gt__(self, other):
+        return 0
         
 class edge():
     """

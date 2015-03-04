@@ -1,38 +1,40 @@
 from basicgraphs import GraphError, vertex, edge, graph
 
+
 class Color():
 
     def __init__(self, index, amount, neightbours):
         self.index = index
         self.amount = amount
         self.neightbours = neightbours
-        
+
     def check(self, v):
         if (not isinstance(v, vertex)):
-            print ("Not a vertex!")
+            print("Not a vertex!")
             return False
 
         if (len(v.nbs()) != self.amount):
             return False
 
         if (self.neightbours != []):
-            nbCheck = neightbours[:]
+            nbCheck = self.neightbours[:]
             nbContains = v.nbs()[:]
-            for x in xrange(0, len(nbContains)):
-                for y in xrange(0, len(nbCheck)):
+            for x in range(0, len(nbContains)):
+                for y in range(0, len(nbCheck)):
                     if nbContains[x] == nbCheck[y]:
                         nbCheck[y] = None
                         break
 
-            for y in xrange(0, nbCheck):
-                if nbCheck[y] != None:
+            for y in range(0, len(nbCheck)):
+                if nbCheck[y] is not None:
                     return False
 
         return True
 
     def createNbs(self, nbs):
         if nbs == []:
-            print("Warning: Overwriting existing neightbours in color+"+str(self.index)+".")
+            print(
+                "Warning: Overwriting existing neightbours in color+" + str(self.index) + ".")
         self.neightbours = nbs
 
     def __cmp__(self, other):
@@ -45,19 +47,18 @@ class Color():
         return self.index > other.index
 
     def __repr__(self):
-        return "color(" + str(self.index) + "): A("+str(self.amount)+") + nbs (" + str(self.neightbours) + ")"
+        rep_nbs = ""
+        for n in self.neightbours:
+            rep_nbs = rep_nbs + ("" if (rep_nbs == "") else ", ") + str(n.index)
+        return "color(" + str(self.index) + "): A(" + str(self.amount) + ") + nbs (" + str(rep_nbs) + ")"
 
 
-
-def recolor(bg_1, bg_2):
+def color_gradient(bg_1, bg_2, colors):
 
     # types correct?
     if (not (isinstance(bg_1, graph) and isinstance(bg_2, graph))):
         print("Not two graphs provided!")
         return False
-
-    # color based on edges
-    colors = []
 
     # basic colorisation based on degrees
     for v in (bg_1.V() + bg_2.V()):
@@ -65,10 +66,18 @@ def recolor(bg_1, bg_2):
         for y in colors:
             if y.check(v):
                 v._label = y
-        if v._label == None:
+        if v._label is None:
             y = Color(len(colors), len(v.nbs()), [])
             colors.append(y)
             v._label = y
+
+
+def recolor(bg_1, bg_2, colors):
+
+    # types correct?
+    if (not (isinstance(bg_1, graph) and isinstance(bg_2, graph))):
+        print("Not two graphs provided!")
+        return False
 
     # refinement
     newColors = []
@@ -76,7 +85,7 @@ def recolor(bg_1, bg_2):
         newColors = []
         for c in colors:
             # get all vertexes involved
-            tVertexes = [[],[]]
+            tVertexes = [[], []]
             for v in bg_1:
                 if c.check(v):
                     tVertexes[0].append(v)
@@ -85,8 +94,8 @@ def recolor(bg_1, bg_2):
                     tVertexes[1].append(v)
             combinedList = tVertexes[0] + tVertexes[1]
             if len(combinedList) == 0:
-                 continue
-            
+                continue
+
             # manipulate
             cList = []
             for v in range(0, len(combinedList)):
@@ -94,21 +103,32 @@ def recolor(bg_1, bg_2):
                 for n in combinedList[v].nbs():
                     lItem.append(n._label)
                 lItem.sort()
-                cList.append((lItem, v))
+                cList.append((lItem, combinedList[v]))
             cList.sort()
 
-            # remember color at start loop and change neightbours of 
+            # remember color at start loop and change neightbours of
             nColor = None
             colorHistory = cList[0][0]
             cList[0][1]._label.createNbs(colorHistory)
 
             for item in cList:
                 if item[0] != colorHistory:
-                    if nColor == None or nColor.check(item[1]) == False:
-                        colorHistor = item[0]
-                        nColor = Color(len(colors), len(colorHistory), colorHistory)
-                        newColors.append(nColor)
-                        item[1]._label = nColor
+                    if nColor is None or not nColor.check(item[1]):
+                        nColor = None
+                        for cTest in colors:
+                            if cTest.check(item[1]):
+                                item[1]._label = cTest
+                                nColor = cTest
+                                break
+
+                        if not nColor is None:
+                            colorHistor = item[0]
+                            nColor = Color(
+                                len(colors), len(colorHistory), colorHistory)
+                            colors.append(nColor)
+                            newColors.append(nColor)
+                            item[1]._label = nColor
+
                     else:
                         item[1]._label = nColor
 
@@ -117,9 +137,12 @@ def recolor(bg_1, bg_2):
             print("Done!")
             break
 
-        colors = colors + newColors
+        #colors = colors + newColors
 
+    import pdb
+    pdb.set_trace()  # breakpoint bf2f9e86 //
     return colors
+
 
 def create_bg1():
     bg = graph(7)
@@ -132,6 +155,7 @@ def create_bg1():
     bg.addedge(bg[5], bg[6])
 
     return bg
+
 
 def create_bg2():
     bg = graph(7)
@@ -146,5 +170,10 @@ def create_bg2():
     return bg
 
 
-bg1 = create_bg1()
-print(bg1)
+def main():
+    colors = []
+    bg1 = create_bg1()
+    bg2 = create_bg2()
+    color_gradient(bg1, bg2, colors)
+
+    recolor(bg1, bg2, colors)
