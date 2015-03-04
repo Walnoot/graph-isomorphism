@@ -1,4 +1,5 @@
 from basicgraphs import GraphError, vertex, edge, graph
+import graphIO
 
 
 class Color():
@@ -139,8 +140,6 @@ def recolor(bg_1, bg_2, colors):
 
         #colors = colors + newColors
 
-    import pdb
-    pdb.set_trace()  # breakpoint bf2f9e86 //
     return colors
 
 
@@ -177,3 +176,18 @@ def main():
     color_gradient(bg1, bg2, colors)
 
     recolor(bg1, bg2, colors)
+
+
+def main_2():
+    colors = []
+    tlist = graphIO.loadgraph('GI_TestInstancesWeek1/crefBM_4_7.grl', readlist=True)
+
+    bg1 = tlist[0][1]
+    bg2 = tlist[0][3]
+    color_gradient(bg1, bg2, colors)
+    recolor(bg1, bg2, colors)
+
+    w1 = graphIO.writeDOT(bg1, 'res_1')
+    w2 = graphIO.writeDOT(bg2, 'res_2')
+    import pdb; pdb.set_trace()  # breakpoint dc4a51c8 //
+
