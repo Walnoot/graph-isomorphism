@@ -62,14 +62,14 @@ class vertex():
         Returns the list of neighbors of vertex <self>.
         In case of parallel edges: duplicates are not removed from this list!
         """     
-        if self._neightbours != None:
-            return self._neightbours
+        #if self._neightbours != None:
+        #    return self._neightbours
 
         nbl=[]
         for e in self.inclist():
             nbl.append(e.otherend(self))
 
-        self._neightbours = nbl
+        #self._neightbours = nbl
         return nbl
 
     def deg(self):

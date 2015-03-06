@@ -48,6 +48,7 @@ class Color():
         return self.index > other.index
 
     def __repr__(self):
+        return str(self.index)
         rep_nbs = ""
         for n in self.neightbours:
             rep_nbs = rep_nbs + ("" if (rep_nbs == "") else ", ") + str(n.index)
@@ -67,10 +68,12 @@ def color_gradient(bg_1, bg_2, colors):
         for y in colors:
             if y.check(v):
                 v._label = y
+                v.colornum = y.index
         if v._label is None:
             y = Color(len(colors), len(v.nbs()), [])
             colors.append(y)
             v._label = y
+            v.colornum = y.index
 
 
 def recolor(bg_1, bg_2, colors):
@@ -81,17 +84,17 @@ def recolor(bg_1, bg_2, colors):
         return False
 
     # refinement
-    newColors = []
+    changed = False
     while True:
-        newColors = []
+        changed = False
         for c in colors:
             # get all vertexes involved
             tVertexes = [[], []]
             for v in bg_1:
-                if c.check(v):
+                if c == v._label:
                     tVertexes[0].append(v)
             for v in bg_2:
-                if c.check(v):
+                if c == v._label:
                     tVertexes[1].append(v)
             combinedList = tVertexes[0] + tVertexes[1]
             if len(combinedList) == 0:
@@ -99,42 +102,35 @@ def recolor(bg_1, bg_2, colors):
 
             # manipulate
             cList = []
-            for v in range(0, len(combinedList)):
+            for v in combinedList:
                 lItem = []
-                for n in combinedList[v].nbs():
+                for n in v.nbs():
                     lItem.append(n._label)
+
                 lItem.sort()
-                cList.append((lItem, combinedList[v]))
+                cList.append((lItem, v))
             cList.sort()
 
             # remember color at start loop and change neightbours of
-            nColor = None
+            nColor = cList[0][1]._label
             colorHistory = cList[0][0]
-            cList[0][1]._label.createNbs(colorHistory)
+            nColor.createNbs(colorHistory)
 
             for item in cList:
                 if item[0] != colorHistory:
-                    if nColor is None or not nColor.check(item[1]):
-                        nColor = None
-                        for cTest in colors:
-                            if cTest.check(item[1]):
-                                item[1]._label = cTest
-                                nColor = cTest
-                                break
+                    nColor = None
+                    if nColor is None:
+                        colorHistory = item[0]
+                        nColor = Color(
+                            len(colors), len(colorHistory), colorHistory)
+                        colors.append(nColor)
+                        changed = True
 
-                        if not nColor is None:
-                            colorHistor = item[0]
-                            nColor = Color(
-                                len(colors), len(colorHistory), colorHistory)
-                            colors.append(nColor)
-                            newColors.append(nColor)
-                            item[1]._label = nColor
-
-                    else:
-                        item[1]._label = nColor
+                item[1]._label = nColor
+                item[1].colornum = nColor.index
 
         # no new colors: end of refining
-        if len(newColors) == 0:
+        if changed:
             print("Done!")
             break
 
@@ -180,14 +176,17 @@ def main():
 
 def main_2():
     colors = []
-    tlist = graphIO.loadgraph('GI_TestInstancesWeek1/crefBM_4_7.grl', readlist=True)
+    tlist = graphIO.loadgraph('GI_TestInstancesWeek1/crefBM_4_4098.grl', readlist=True)
 
-    bg1 = tlist[0][1]
-    bg2 = tlist[0][3]
+    bg1 = tlist[0][0]
+    bg2 = tlist[0][1]
     color_gradient(bg1, bg2, colors)
+    #print(bg1)
+    #print(bg2)
     recolor(bg1, bg2, colors)
 
-    w1 = graphIO.writeDOT(bg1, 'res_1')
-    w2 = graphIO.writeDOT(bg2, 'res_2')
-    import pdb; pdb.set_trace()  # breakpoint dc4a51c8 //
+    #w1 = graphIO.writeDOT(bg1, 'res_1')
+    #w2 = graphIO.writeDOT(bg2, 'res_2')
 
+
+main_2()
