@@ -4,21 +4,21 @@ import graphIO
 
 class Color():
 
-    def __init__(self, index, amount, neightbours):
+    def __init__(self, index, amount, neighbours):
         self.index = index
         self.amount = amount
-        self.neightbours = neightbours
+        self.neighbours = neighbours
 
     def check(self, v):
-        if (not isinstance(v, vertex)):
+        if not isinstance(v, vertex):
             print("Not a vertex!")
             return False
 
-        if (len(v.nbs()) != self.amount):
+        if len(v.nbs()) != self.amount:
             return False
 
-        if (self.neightbours != []):
-            nbCheck = self.neightbours[:]
+        if self.neighbours != []:
+            nbCheck = self.neighbours[:]
             nbContains = v.nbs()[:]
             for x in range(0, len(nbContains)):
                 for y in range(0, len(nbCheck)):
@@ -33,10 +33,10 @@ class Color():
         return True
 
     def createNbs(self, nbs):
-        if nbs == []:
+        if not nbs:
             print(
-                "Warning: Overwriting existing neightbours in color+" + str(self.index) + ".")
-        self.neightbours = nbs
+                "Warning: Overwriting existing neighbours in color+" + str(self.index) + ".")
+        self.neighbours = nbs
 
     def __cmp__(self, other):
         return self.index - other.index
@@ -50,7 +50,7 @@ class Color():
     def __repr__(self):
         return str(self.index)
         rep_nbs = ""
-        for n in self.neightbours:
+        for n in self.neighbours:
             rep_nbs = rep_nbs + ("" if (rep_nbs == "") else ", ") + str(n.index)
         return "color(" + str(self.index) + "): A(" + str(self.amount) + ") + nbs (" + str(rep_nbs) + ")"
 
@@ -58,7 +58,7 @@ class Color():
 def color_gradient(bg_1, bg_2, colors):
 
     # types correct?
-    if (not (isinstance(bg_1, graph) and isinstance(bg_2, graph))):
+    if not (isinstance(bg_1, graph) and isinstance(bg_2, graph)):
         print("Not two graphs provided!")
         return False
 
@@ -79,7 +79,7 @@ def color_gradient(bg_1, bg_2, colors):
 def recolor(bg_1, bg_2, colors):
 
     # types correct?
-    if (not (isinstance(bg_1, graph) and isinstance(bg_2, graph))):
+    if not (isinstance(bg_1, graph) and isinstance(bg_2, graph)):
         print("Not two graphs provided!")
         return False
 
@@ -111,7 +111,7 @@ def recolor(bg_1, bg_2, colors):
                 cList.append((lItem, v))
             cList.sort()
 
-            # remember color at start loop and change neightbours of
+            # remember color at start loop and change neighbours of
             nColor = cList[0][1]._label
             colorHistory = cList[0][0]
             nColor.createNbs(colorHistory)
