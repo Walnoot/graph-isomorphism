@@ -1,58 +1,5 @@
-from basicgraphs import GraphError, vertex, edge, graph
+from basicgraphs import graph  # , GraphError, vertex, edge
 import graphIO
-
-
-class Color():
-
-    def __init__(self, index, amount, neighbours):
-        self.index = index
-        self.amount = amount
-        self.neighbours = neighbours
-
-    def check(self, v):
-        if not isinstance(v, vertex):
-            print("Not a vertex!")
-            return False
-
-        if len(v.nbs()) != self.amount:
-            return False
-
-        if self.neighbours != []:
-            nbCheck = self.neighbours[:]
-            nbContains = v.nbs()[:]
-            for x in range(0, len(nbContains)):
-                for y in range(0, len(nbCheck)):
-                    if nbContains[x] == nbCheck[y]:
-                        nbCheck[y] = None
-                        break
-
-            for y in range(0, len(nbCheck)):
-                if nbCheck[y] is not None:
-                    return False
-
-        return True
-
-    def createNbs(self, nbs):
-        if not nbs:
-            print(
-                "Warning: Overwriting existing neighbours in color+" + str(self.index) + ".")
-        self.neighbours = nbs
-
-    def __cmp__(self, other):
-        return self.index - other.index
-
-    def __lt__(self, other):
-        return self.index < other.index
-
-    def __gt__(self, other):
-        return self.index > other.index
-
-    def __repr__(self):
-        return str(self.index)
-        rep_nbs = ""
-        for n in self.neighbours:
-            rep_nbs = rep_nbs + ("" if (rep_nbs == "") else ", ") + str(n.index)
-        return "color(" + str(self.index) + "): A(" + str(self.amount) + ") + nbs (" + str(rep_nbs) + ")"
 
 
 def color_gradient(bg_1, bg_2, colors):
@@ -62,18 +9,17 @@ def color_gradient(bg_1, bg_2, colors):
         print("Not two graphs provided!")
         return False
 
+    nbs_count_2_color_num = {}
     # basic colorisation based on degrees
     for v in (bg_1.V() + bg_2.V()):
-        v._label = None
-        for y in colors:
-            if y.check(v):
-                v._label = y
-                v.colornum = y.index
-        if v._label is None:
-            y = Color(len(colors), len(v.nbs()), [])
-            colors.append(y)
-            v._label = y
-            v.colornum = y.index
+        count = len(v.nbs())
+        if count not in nbs_count_2_color_num:
+            nbs_count_2_color_num[count] = len(colors)
+            colors[len(colors)] = []
+
+        c = nbs_count_2_color_num[count]
+        v.colornum = c
+        colors[c].append(v)
 
 
 def recolor(bg_1, bg_2, colors):
@@ -84,58 +30,43 @@ def recolor(bg_1, bg_2, colors):
         return False
 
     # refinement
-    changed = False
-    while True:
+    changed = True
+    # refine until stable
+    while changed:
         changed = False
-        for c in colors:
-            # get all vertexes involved
-            tVertexes = [[], []]
-            for v in bg_1:
-                if c == v._label:
-                    tVertexes[0].append(v)
-            for v in bg_2:
-                if c == v._label:
-                    tVertexes[1].append(v)
-            combinedList = tVertexes[0] + tVertexes[1]
-            if len(combinedList) == 0:
-                continue
+        vertex_lists = list(colors.values())
+        # for each 'color' c , but actually for each value which is a list over vertexes
+        for c in vertex_lists:
+            # for each color with more than 1 vertex check if it can be refined
+            if len(c) > 1:
+                c_list = []  # list with tuples ([neighbour colors], vertex)
+                # for each vertex in the current list, the list of the current 'color'
+                for v in c:
+                    l_item = []  # list with colors of all neighbours of current vertex
+                    for n in v.nbs():
+                        l_item.append(n.colornum)
 
-            # manipulate
-            cList = []
-            for v in combinedList:
-                lItem = []
-                for n in v.nbs():
-                    lItem.append(n._label)
+                    l_item.sort()
+                    c_list.append((l_item, v))
+                c_list.sort()
 
-                lItem.sort()
-                cList.append((lItem, v))
-            cList.sort()
+                cur_color = c_list[0][1].colornum
+                cur_color_definition = c_list[0][0]
 
-            # remember color at start loop and change neighbours of
-            nColor = cList[0][1]._label
-            colorHistory = cList[0][0]
-            nColor.createNbs(colorHistory)
-
-            for item in cList:
-                if item[0] != colorHistory:
-                    nColor = None
-                    if nColor is None:
-                        colorHistory = item[0]
-                        nColor = Color(
-                            len(colors), len(colorHistory), colorHistory)
-                        colors.append(nColor)
+                for item in c_list:
+                    if item[0] != cur_color_definition:
+                        # create new color
+                        cur_color = len(colors)
+                        colors[cur_color] = []
+                        cur_color_definition = item[0]
                         changed = True
 
-                item[1]._label = nColor
-                item[1].colornum = nColor.index
+                    if item[1].colornum != cur_color:
+                        colors[item[1].colornum].remove(item[1])
+                        item[1].colornum = cur_color
+                        colors[cur_color].append(item[1])
 
-        # no new colors: end of refining
-        if changed:
-            print("Done!")
-            break
-
-        #colors = colors + newColors
-
+    print("Done!")
     return colors
 
 
@@ -175,7 +106,17 @@ def main():
 
 
 def main_2():
-    colors = []
+    colors = {}
+
+# crefBM_2_49 : These two graphs are isomorphic
+# crefBM_4_7 : 1 and 3 are isomorphic, 0 and 2 remain undecided, and all other pairs are not isomorphic.
+# crefBM_4_9 : 0 and 3 are isomorphic, 1 and 2 are isomorphic, and all other pairs are not isomorphic.
+# crefBM_6_15 : 0 and 1 are isomorphic, as well as 2 and 3. Graphs 4 and 5 remain undecided,
+#               and all other pairs of graphs are not isomorphic
+
+
+    #tlist = graphIO.loadgraph('GI_TestInstancesWeek1/crefBM_4_7.grl', readlist=True)
+    #tlist = graphIO.loadgraph('GI_TestInstancesWeek1/crefBM_6_15.grl', readlist=True)
     tlist = graphIO.loadgraph('GI_TestInstancesWeek1/crefBM_4_4098.grl', readlist=True)
 
     bg1 = tlist[0][0]
@@ -185,8 +126,8 @@ def main_2():
     #print(bg2)
     recolor(bg1, bg2, colors)
 
-    #w1 = graphIO.writeDOT(bg1, 'res_1')
-    #w2 = graphIO.writeDOT(bg2, 'res_2')
+    graphIO.writeDOT(bg1, 'res_1')
+    graphIO.writeDOT(bg2, 'res_2')
 
 
 main_2()
