@@ -19,8 +19,8 @@ def color_gradient(bg_1, bg_2, colors):
 
         c = nbs_count_2_color_num[count]
         v.colornum = c
-        colors[c].append(v)
 
+        colors[c].append(v)
 
 def recolor(bg_1, bg_2, colors):
 
@@ -69,6 +69,46 @@ def recolor(bg_1, bg_2, colors):
     print("Done!")
     return colors
 
+def count_isomorphism(bg_1, bg_2):
+    colors = {}
+    color_gradient(bg_1, bg_2, colors)
+    recolor(bg_1, bg_2, colors)
+
+    if defines_bijection(colors):
+        return 1
+    
+    if not is_balanced(colors):
+        return 0
+    return "idk"
+        #tricky part
+
+def is_balanced(colors):
+    for color in colors:
+        if len(colors[color]) != 0:
+            num0 = 0#amount of vertices in graph0
+            num1 = 0#amount of vertices in the other graph
+            graph0 = colors[color][0]._graph
+            
+            for vertex in colors[color]:
+                if vertex._graph is graph0:
+                    num0 += 1
+                else:
+                    num1 += 1
+            
+            if num0 != num1:
+                return False
+    
+    return True
+
+def defines_bijection(colors):
+    for color in colors:
+        if len(colors[color]) != 2:#found a color with #vertices != 2
+            return False
+        
+        if colors[color][0]._graph is colors[color][1]._graph:#both vertices belong to same graph, no bijection
+            return False
+    
+    return True
 
 def create_bg1():
     bg = graph(7)
@@ -129,5 +169,15 @@ def main_2():
     graphIO.writeDOT(bg1, 'res_1')
     graphIO.writeDOT(bg2, 'res_2')
 
+def main_3():
+    tlist = graphIO.loadgraph('GI_TestInstancesWeek1/crefBM_6_15.grl', readlist=True)
+    bg1 = tlist[0][2]
+    bg2 = tlist[0][3]
+    
+    print(count_isomorphism(bg1, bg2))
+        
+    #graphIO.writeDOT(bg1, 'res_1')
+    #graphIO.writeDOT(bg2, 'res_2')
 
-main_2()
+
+#main_2()
