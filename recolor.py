@@ -1,4 +1,5 @@
 from basicgraphs import graph  # , GraphError, vertex, edge
+from datetime import datetime
 import graphIO
 
 
@@ -9,10 +10,25 @@ def color_gradient(bg_1, bg_2, colors):
         print("Not two graphs provided!")
         return False
 
+    def count_nbs(edges):
+        def inc_nbs(v):
+            if hasattr(v, 'colornum'):
+                v.colornum += 1
+            else:
+                v.colornum = 1
+
+        for e in edges:
+            inc_nbs(e.head())
+            inc_nbs(e.tail())
+
+    count_nbs(bg_1._E)  # Instead of E() we use _E so we need not set unsafe to true.
+    count_nbs(bg_2._E)  # Instead of E() we use _E so we need not set unsafe to true.
+
     nbs_count_2_color_num = {}
     # basic colorisation based on degrees
-    for v in (bg_1.V() + bg_2.V()):
-        count = len(v.nbs())
+    combined_v = bg_1._V + bg_2._V  # Instead of the safe but slow V() we use here _V
+    for v in combined_v:
+        count = v.colornum
         if count not in nbs_count_2_color_num:
             nbs_count_2_color_num[count] = len(colors)
             colors[len(colors)] = []
@@ -52,6 +68,8 @@ def recolor(bg_1, bg_2, colors):
 
                 cur_color = c_list[0][1].colornum
                 cur_color_definition = c_list[0][0]
+                # Remove all vertexes from current color
+                colors[cur_color] = []
 
                 for item in c_list:
                     if item[0] != cur_color_definition:
@@ -61,10 +79,8 @@ def recolor(bg_1, bg_2, colors):
                         cur_color_definition = item[0]
                         changed = True
 
-                    if item[1].colornum != cur_color:
-                        colors[item[1].colornum].remove(item[1])
-                        item[1].colornum = cur_color
-                        colors[cur_color].append(item[1])
+                    item[1].colornum = cur_color
+                    colors[cur_color].append(item[1])
 
     print("Done!")
     return colors
@@ -184,10 +200,11 @@ def main_2():
     color_gradient(bg1, bg2, colors)
     #print(bg1)
     #print(bg2)
-    recolor(bg1, bg2, colors)
+    print(recolor(bg1, bg2, colors))
 
     graphIO.writeDOT(bg1, 'res_1')
     graphIO.writeDOT(bg2, 'res_2')
+
 
 def main_3():
     tlist = graphIO.loadgraph('GI_TestInstancesWeek1/crefBM_6_15.grl', readlist=True)
@@ -200,4 +217,6 @@ def main_3():
     #graphIO.writeDOT(bg2, 'res_2')
 
 
-#main_2()
+print(datetime.now().timestamp())
+main_2()
+print(datetime.now().timestamp())
