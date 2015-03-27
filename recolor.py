@@ -69,18 +69,38 @@ def recolor(bg_1, bg_2, colors):
     print("Done!")
     return colors
 
-def count_isomorphism(bg_1, bg_2):
+#see slides lecture 2 page 23
+#g and h instance of graph
+def count_isomorphism(g, h):
     colors = {}
-    color_gradient(bg_1, bg_2, colors)
-    recolor(bg_1, bg_2, colors)
+    color_gradient(g, h, colors)
+    recolor(g, h, colors)
 
     if defines_bijection(colors):
         return 1
     
     if not is_balanced(colors):
         return 0
-    return "idk"
-        #tricky part
+    
+    #Choose a color class C with |C| ≥ 4
+    c = None
+    for color in colors:
+        if len(colors[color]) >= 4:
+            c = color
+            break
+    
+    x = None  #vertex of g with color c
+    for v in c:
+        if v._graph is g:
+            x = v
+            break
+    
+    num = 0
+    for y in c:
+        if y._graph is h:
+            num += count_isomorphism
+    
+    return num
 
 def is_balanced(colors):
     for color in colors:
