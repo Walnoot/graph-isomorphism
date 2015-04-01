@@ -4,7 +4,6 @@ import graphIO
 
 
 def color_gradient(bg_1, bg_2, colors):
-
     # types correct?
     if not (isinstance(bg_1, graph) and isinstance(bg_2, graph)):
         print("Not two graphs provided!")
@@ -38,8 +37,8 @@ def color_gradient(bg_1, bg_2, colors):
 
         colors[c].append(v)
 
-def recolor(bg_1, bg_2, colors):
 
+def recolor(bg_1, bg_2, colors):
     # types correct?
     if not (isinstance(bg_1, graph) and isinstance(bg_2, graph)):
         print("Not two graphs provided!")
@@ -85,6 +84,7 @@ def recolor(bg_1, bg_2, colors):
     print("Done!")
     return colors
 
+
 def count_isomorphism(bg_1, bg_2):
     colors = {}
     color_gradient(bg_1, bg_2, colors)
@@ -92,39 +92,42 @@ def count_isomorphism(bg_1, bg_2):
 
     if defines_bijection(colors):
         return 1
-    
+
     if not is_balanced(colors):
         return 0
     return "idk"
-        #tricky part
+    # tricky part
+
 
 def is_balanced(colors):
     for color in colors:
         if len(colors[color]) != 0:
-            num0 = 0#amount of vertices in graph0
-            num1 = 0#amount of vertices in the other graph
+            num0 = 0  # amount of vertices in graph0
+            num1 = 0  # amount of vertices in the other graph
             graph0 = colors[color][0]._graph
-            
+
             for vertex in colors[color]:
                 if vertex._graph is graph0:
                     num0 += 1
                 else:
                     num1 += 1
-            
+
             if num0 != num1:
                 return False
-    
+
     return True
+
 
 def defines_bijection(colors):
     for color in colors:
-        if len(colors[color]) != 2:#found a color with #vertices != 2
+        if len(colors[color]) != 2:  # found a color with #vertices != 2
             return False
-        
-        if colors[color][0]._graph is colors[color][1]._graph:#both vertices belong to same graph, no bijection
+
+        if colors[color][0]._graph is colors[color][1]._graph:  # both vertices belong to same graph, no bijection
             return False
-    
+
     return True
+
 
 def create_bg1():
     bg = graph(7)
@@ -164,11 +167,11 @@ def main():
 def main_2():
     colors = {}
 
-# crefBM_2_49 : These two graphs are isomorphic
-# crefBM_4_7 : 1 and 3 are isomorphic, 0 and 2 remain undecided, and all other pairs are not isomorphic.
-# crefBM_4_9 : 0 and 3 are isomorphic, 1 and 2 are isomorphic, and all other pairs are not isomorphic.
-# crefBM_6_15 : 0 and 1 are isomorphic, as well as 2 and 3. Graphs 4 and 5 remain undecided,
-#               and all other pairs of graphs are not isomorphic
+    # crefBM_2_49 : These two graphs are isomorphic
+    # crefBM_4_7 : 1 and 3 are isomorphic, 0 and 2 remain undecided, and all other pairs are not isomorphic.
+    # crefBM_4_9 : 0 and 3 are isomorphic, 1 and 2 are isomorphic, and all other pairs are not isomorphic.
+    # crefBM_6_15 : 0 and 1 are isomorphic, as well as 2 and 3. Graphs 4 and 5 remain undecided,
+    # and all other pairs of graphs are not isomorphic
 
 
     #tlist = graphIO.loadgraph('GI_TestInstancesWeek1/crefBM_4_7.grl', readlist=True)
@@ -190,10 +193,10 @@ def main_3():
     tlist = graphIO.loadgraph('GI_TestInstancesWeek1/crefBM_6_15.grl', readlist=True)
     bg1 = tlist[0][2]
     bg2 = tlist[0][3]
-    
+
     print(count_isomorphism(bg1, bg2))
-        
-    #graphIO.writeDOT(bg1, 'res_1')
+
+    # graphIO.writeDOT(bg1, 'res_1')
     #graphIO.writeDOT(bg2, 'res_2')
 
 
