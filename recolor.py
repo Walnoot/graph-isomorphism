@@ -4,7 +4,6 @@ import graphIO
 
 
 def color_gradient(bg_1, bg_2, colors):
-
     # types correct?
     if not (isinstance(bg_1, graph) and isinstance(bg_2, graph)):
         print("Not two graphs provided!")
@@ -25,7 +24,7 @@ def color_gradient(bg_1, bg_2, colors):
     count_nbs(bg_2._E)  # Instead of E() we use _E so we need not set unsafe to true.
 
     nbs_count_2_color_num = {}
-    # basic colorisation based on degrees
+    # basic colonisation based on degrees
     combined_v = bg_1._V + bg_2._V  # Instead of the safe but slow V() we use here _V
     for v in combined_v:
         count = v.colornum
@@ -38,12 +37,18 @@ def color_gradient(bg_1, bg_2, colors):
 
         colors[c].append(v)
 
-def recolor(bg_1, bg_2, colors):
 
-    # types correct?
-    if not (isinstance(bg_1, graph) and isinstance(bg_2, graph)):
-        print("Not two graphs provided!")
-        return False
+def recolor(colors):  # bg_1, bg_2, are not used
+    """
+    :param colors: Dictionary containing the coloring of two graphs which are colored together.
+    :return: <False> iff unbalanced coloring is detected;
+     otherwise when done returns <True>, coloring can still be unbalanced.
+    """
+
+    # # types correct?
+    # if not (isinstance(bg_1, graph) and isinstance(bg_2, graph)):
+    # print("Not two graphs provided!")
+    # return False
 
     # refinement
     changed = True
@@ -53,8 +58,10 @@ def recolor(bg_1, bg_2, colors):
         vertex_lists = list(colors.values())
         # for each 'color' c , but actually for each value which is a list over vertexes
         for c in vertex_lists:
-            # for each color with more than 1 vertex check if it can be refined
-            if len(c) > 1:
+            # if the number of vertexes is odd, the coloring is unbalanced, we can stop
+            if len(c) % 2 != 0:
+                return False
+            else:
                 c_list = []  # list with tuples ([neighbour colors], vertex)
                 # for each vertex in the current list, the list of the current 'color'
                 for v in c:
@@ -82,27 +89,57 @@ def recolor(bg_1, bg_2, colors):
                     item[1].colornum = cur_color
                     colors[cur_color].append(item[1])
 
-    print("Done!")
+    # print("Done!")
+    return True
+
+#creates the color dict based on the colornums of the vertices in the graph
+def create_color_dict(g, h):
+    colors = {}
+    for v in g._V:
+        list = colors.get(v.colornum, [])
+        list.append(v)
+        colors[v.colornum] = list
+    for v in h._V:
+        list = colors.get(v.colornum, [])
+        list.append(v)
+        colors[v.colornum] = list
+    
     return colors
 
 #see slides lecture 2 page 23
 #g and h instance of graph
-def count_isomorphism(g, h):
-    colors = {}
-    color_gradient(g, h, colors)
-    recolor(g, h, colors)
+def count_isomorphism(g, h, d=[], i=[]):
+    #colors = {}
+    #color_gradient(g, h, colors)
+    
+    def set_colors(graph, l):
+        i=0
+        for v in graph:
+            if v in l:
+                i += 1
+                v.colornum = i
+            else:
+                v.colornum = 0
+    
+    set_colors(g, d)
+    set_colors(h, i)
+    colors = create_color_dict(g, h)
+    
+    if not recolor(colors):  #recolor can return if the coloring is unbalanced
+        return 0
 
     if defines_bijection(colors):
         return 1
-    
-    if not is_balanced(colors):
+
+    if not is_balanced(colors):  #recolor doesnt always know if the coloring is unbalanced
         return 0
     
     #Choose a color class C with |C| ≥ 4
+    #note that c is the list of vertices, not an int representing the color
     c = None
     for color in colors:
         if len(colors[color]) >= 4:
-            c = color
+            c = colors[color]
             break
     
     x = None  #vertex of g with color c
@@ -114,7 +151,7 @@ def count_isomorphism(g, h):
     num = 0
     for y in c:
         if y._graph is h:
-            num += count_isomorphism
+            num += count_isomorphism(g, h, d+[x], i+[y])
     
     return num
 
@@ -130,11 +167,12 @@ def is_balanced(colors):
                     num0 += 1
                 else:
                     num1 += 1
-            
+
             if num0 != num1:
                 return False
-    
+
     return True
+
 
 def defines_bijection(colors):
     for color, vertices in colors.items():
@@ -143,8 +181,9 @@ def defines_bijection(colors):
         
         if vertices[0]._graph is vertices[1]._graph:#both vertices belong to same graph, no bijection
             return False
-    
+
     return True
+
 
 def create_bg1():
     bg = graph(7)
@@ -178,43 +217,42 @@ def main():
     bg2 = create_bg2()
     color_gradient(bg1, bg2, colors)
 
-    recolor(bg1, bg2, colors)
+    recolor(colors)  # bg1, bg2,
 
 
 def main_2():
     colors = {}
 
-# crefBM_2_49 : These two graphs are isomorphic
-# crefBM_4_7 : 1 and 3 are isomorphic, 0 and 2 remain undecided, and all other pairs are not isomorphic.
-# crefBM_4_9 : 0 and 3 are isomorphic, 1 and 2 are isomorphic, and all other pairs are not isomorphic.
-# crefBM_6_15 : 0 and 1 are isomorphic, as well as 2 and 3. Graphs 4 and 5 remain undecided,
-#               and all other pairs of graphs are not isomorphic
+    # crefBM_2_49 : These two graphs are isomorphic
+    # crefBM_4_7 : 1 and 3 are isomorphic, 0 and 2 remain undecided, and all other pairs are not isomorphic.
+    # crefBM_4_9 : 0 and 3 are isomorphic, 1 and 2 are isomorphic, and all other pairs are not isomorphic.
+    # crefBM_6_15 : 0 and 1 are isomorphic, as well as 2 and 3. Graphs 4 and 5 remain undecided,
+    # and all other pairs of graphs are not isomorphic
 
-
-    #tlist = graphIO.loadgraph('GI_TestInstancesWeek1/crefBM_4_7.grl', readlist=True)
-    #tlist = graphIO.loadgraph('GI_TestInstancesWeek1/crefBM_6_15.grl', readlist=True)
+    # tlist = graphIO.loadgraph('GI_TestInstancesWeek1/crefBM_4_7.grl', readlist=True)
+    # tlist = graphIO.loadgraph('GI_TestInstancesWeek1/crefBM_6_15.grl', readlist=True)
     tlist = graphIO.loadgraph('GI_TestInstancesWeek1/crefBM_4_4098.grl', readlist=True)
 
     bg1 = tlist[0][0]
     bg2 = tlist[0][1]
     color_gradient(bg1, bg2, colors)
-    #print(bg1)
-    #print(bg2)
-    print(recolor(bg1, bg2, colors))
+    # print(bg1)
+    # print(bg2)
+    print(recolor(colors))  # bg1, bg2,
 
     graphIO.writeDOT(bg1, 'res_1')
     graphIO.writeDOT(bg2, 'res_2')
 
 
 def main_3():
-    tlist = graphIO.loadgraph('GI_TestInstancesWeek1/crefBM_6_15.grl', readlist=True)
-    bg1 = tlist[0][2]
-    bg2 = tlist[0][3]
-    
+    tlist = graphIO.loadgraph('GI_TestInstancesWeek1/crefBM_4_7.grl', readlist=True)
+    bg1 = tlist[0][0]
+    bg2 = tlist[0][2]
+
     print(count_isomorphism(bg1, bg2))
-        
-    #graphIO.writeDOT(bg1, 'res_1')
-    #graphIO.writeDOT(bg2, 'res_2')
+
+    # graphIO.writeDOT(bg1, 'res_1')
+    # graphIO.writeDOT(bg2, 'res_2')
 
 
 #print(datetime.now().timestamp())
