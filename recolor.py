@@ -368,7 +368,6 @@ def main_4():
     tlist = graphIO.loadgraph('GI_TestInstancesWeek1/crefBM_4_7.grl', readlist=True)
     bg1 = tlist[0][0]
     bg2 = tlist[0][2]
-
     print(generate_automorphism(bg1, bg2))
 
 def speed_test():
