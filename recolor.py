@@ -119,13 +119,13 @@ def count_isomorphism(g, h):
     return num
 
 def is_balanced(colors):
-    for color in colors:
+    for color, vertices in colors.items():
         if len(colors[color]) != 0:
             num0 = 0#amount of vertices in graph0
             num1 = 0#amount of vertices in the other graph
-            graph0 = colors[color][0]._graph
+            graph0 = vertices[0]._graph
             
-            for vertex in colors[color]:
+            for vertex in vertices:
                 if vertex._graph is graph0:
                     num0 += 1
                 else:
@@ -137,11 +137,11 @@ def is_balanced(colors):
     return True
 
 def defines_bijection(colors):
-    for color in colors:
+    for color, vertices in colors.items():
         if len(colors[color]) != 2:#found a color with #vertices != 2
             return False
         
-        if colors[color][0]._graph is colors[color][1]._graph:#both vertices belong to same graph, no bijection
+        if vertices[0]._graph is vertices[1]._graph:#both vertices belong to same graph, no bijection
             return False
     
     return True
@@ -217,6 +217,6 @@ def main_3():
     #graphIO.writeDOT(bg2, 'res_2')
 
 
-print(datetime.now().timestamp())
-main_2()
-print(datetime.now().timestamp())
+#print(datetime.now().timestamp())
+#main_2()
+#print(datetime.now().timestamp())
