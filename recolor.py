@@ -66,7 +66,7 @@ def recolor(colors):  # bg_1, bg_2, are not used
                 # for each vertex in the current list, the list of the current 'color'
                 for v in c:
                     l_item = []  # list with colors of all neighbours of current vertex
-                    for n in v.nbs():
+                    for n in v.get_cached_nbs():
                         l_item.append(n.colornum)
 
                     l_item.sort()
@@ -221,8 +221,6 @@ def main():
 
 
 def main_2():
-    colors = {}
-
     # crefBM_2_49 : These two graphs are isomorphic
     # crefBM_4_7 : 1 and 3 are isomorphic, 0 and 2 remain undecided, and all other pairs are not isomorphic.
     # crefBM_4_9 : 0 and 3 are isomorphic, 1 and 2 are isomorphic, and all other pairs are not isomorphic.
@@ -235,7 +233,8 @@ def main_2():
 
     bg1 = tlist[0][0]
     bg2 = tlist[0][1]
-    color_gradient(bg1, bg2, colors)
+    colors = {0: bg1._V + bg2._V}
+    # color_gradient(bg1, bg2, colors)
     # print(bg1)
     # print(bg2)
     print(recolor(colors))  # bg1, bg2,
