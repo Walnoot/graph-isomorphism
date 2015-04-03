@@ -299,7 +299,9 @@ def main_3():
 
     # graphIO.writeDOT(bg1, 'res_1')
     # graphIO.writeDOT(bg2, 'res_2')
-
-#print(datetime.now().timestamp())
+#t = datetime.now().timestamp()
+#print(t)
 #main_2()
-#print(datetime.now().timestamp())
+#t2 = datetime.now().timestamp()
+#print(t2)
+#print('difference: ', (t2-t1))
