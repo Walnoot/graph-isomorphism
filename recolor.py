@@ -4,6 +4,7 @@ import graphIO
 import permgrputil
 from permv2 import permutation
 
+
 def color_gradient(bg_1, bg_2, colors):
     # types correct?
     if not (isinstance(bg_1, graph) and isinstance(bg_2, graph)):
@@ -239,13 +240,15 @@ def main():
 
     recolor(colors)  # bg1, bg2,
 
-def generate_automorphisms(graph, gCopy, verticesD, verticesI, x): #lowercamelcase #ftw #yolo
+
+def generate_automorphisms(graph, gCopy, verticesD, verticesI, x):  # lowercamelcase #ftw #yolo
     """
     requires arguments gCopy to be a deepcopy of graph, parameters d, i and x should be []
     return type is irrelevant for the working principle of this function, that is reserved for internal purposes only
     """
+
     def set_colors(graph, l):
-        cnt=0
+        cnt = 0
         for v in graph:
             if v in l:
                 cnt += 1
@@ -258,30 +261,30 @@ def generate_automorphisms(graph, gCopy, verticesD, verticesI, x): #lowercamelca
     set_colors(gCopy, verticesI)
     colors = create_color_dict(graph, gCopy)
 
-    if not recolor(colors):  #recolor can return if the coloring is unbalanced
+    if not recolor(colors):  # recolor can return if the coloring is unbalanced
         return False
-    if not is_balanced(colors):  #recolor doesnt always know if the coloring is unbalanced
+    if not is_balanced(colors):  # recolor doesnt always know if the coloring is unbalanced
         return False
 
     # unique automorphism
     if defines_bijection(colors):
         mapping = list(range(0, len(graph._V)))
-        for i in range(0, len(colors)): 
+        for i in range(0, len(colors)):
             if colors[i][0] in graph:
                 mapping[colors[i][0]._label] = colors[i][1]._label
             else:
                 mapping[colors[i][1]._label] = colors[i][0]._label
-            
-        #print(mapping)
+
+        # print(mapping)
         # add to generating set (assuming we return to trivial node, by pruning rule #1)
         perm = permutation(len(mapping), mapping=mapping)
         if mapping != list(range(0, len(mapping))):
             x.append(perm)
-        return True #return to last visited trivial ancestor
+        return True  # return to last visited trivial ancestor
 
     # multiple automorphisms
 
-    #Choose a color class C with |C| ≥ 4
+    # Choose a color class C with |C| ≥ 4
     c = None
     instBreak = False
     for color in colors.values():
@@ -291,10 +294,10 @@ def generate_automorphisms(graph, gCopy, verticesD, verticesI, x): #lowercamelca
                 if verticesD[i]._label == verticesI[i]._label:
                     instBreak = True
                     break
-            if instBreak:#because my teammembers do not allow me to use a try-catch
+            if instBreak:  # because my teammembers do not allow me to use a try-catch
                 break
-    
-    newEl = None  #vertex of graph with color c
+
+    newEl = None  # vertex of graph with color c
     for v in c:
         if v._graph is graph:
             newEl = v
@@ -307,16 +310,17 @@ def generate_automorphisms(graph, gCopy, verticesD, verticesI, x): #lowercamelca
         if v._graph is gCopy:
             checklist.append(v)
             if v._label == newEl._label:
-                checklist[0], checklist[len(checklist)-1] = v, checklist[0]
+                checklist[0], checklist[len(checklist) - 1] = v, checklist[0]
 
     for v in checklist:
         res = generate_automorphisms(graph, gCopy, verticesD + [newEl], verticesI + [v], x)
-        if res == True: # return to last trivial ancestor
+        if res:  # return to last trivial ancestor
             for i in range(0, len(verticesD)):
                 if verticesD[i]._label != verticesI[i]._label:
-                    return True # not trivial, return to last trivial ancestor
+                    return True  # not trivial, return to last trivial ancestor
 
     return False
+
 
 def main_2():
     # crefBM_2_49 : These two graphs are isomorphic
@@ -363,10 +367,11 @@ def print_isomorphisms(path):
     for pair in isomorphic_pairs:
         print(pair)
 
+
 def check_autmorphism_generators():
-    #generate_autmorphisms requires that the given graphs are separate instances
-    #one could load a graph and make a deep copy, however, since no modules may
-    #be imported it is easier to load the graphs twice
+    # generate_autmorphisms requires that the given graphs are separate instances
+    # one could load a graph and make a deep copy, however, since no modules may
+    # be imported it is easier to load the graphs twice
     tlist = graphIO.loadgraph('test_2/cubes6.grl', readlist=True)
     bg1 = tlist[0][2]
     tlist = graphIO.loadgraph('test_2/cubes6.grl', readlist=True)
