@@ -230,10 +230,22 @@ def main():
     recolor(colors)  # bg1, bg2,
 
 
-def count_automorphisms(graph, gCopy):
+def count_automorphisms(graph, gCopy, d=[], i=[]):
     """
-    requires arguments gCopy to be a deepcopy of graph
+    requires arguments gCopy to be a deepcopy of graph, parameters d and i should be unused by anything but this recursive function itself
     """
+    def set_colors(graph, l):
+        i=0
+        for v in graph:
+            if v in l:
+                i += 1
+                v.colornum = i
+            else:
+                v.colornum = 0
+    
+    set_colors(graph, d)
+    set_colors(gCopy, i)
+    colors = create_color_dict(graph, gCopy)
 
 
 def main_2():
@@ -311,3 +323,6 @@ def main_3():
 #t2 = datetime.now().timestamp()
 #print(t2)
 #print('difference: ', (t2-t1))
+
+
+#Frans #YOLO
