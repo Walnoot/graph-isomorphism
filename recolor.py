@@ -144,9 +144,9 @@ def count_isomorphism(g, h, d=[], i=[], stop_early=False):
     #Choose a color class C with |C| ≥ 4
     #note that c is the list of vertices, not an int representing the color
     c = None
-    for color in colors:
-        if len(colors[color]) >= 4:
-            c = colors[color]
+    for color in colors.values():
+        if len(color) >= 4:
+            c = color
             break
     
     x = None  #vertex of g with color c
@@ -166,8 +166,8 @@ def count_isomorphism(g, h, d=[], i=[], stop_early=False):
     return num
 
 def is_balanced(colors):
-    for color, vertices in colors.items():
-        if len(colors[color]) != 0:
+    for vertices in colors.values():
+        if len(vertices) != 0:
             num0 = 0#amount of vertices in graph0
             num1 = 0#amount of vertices in the other graph
             graph0 = vertices[0]._graph
@@ -185,8 +185,8 @@ def is_balanced(colors):
 
 
 def defines_bijection(colors):
-    for color, vertices in colors.items():
-        if len(colors[color]) != 2:#found a color with #vertices != 2
+    for vertices in colors.values():
+        if len(vertices) != 2:#found a color with #vertices != 2
             return False
         
         if vertices[0]._graph is vertices[1]._graph:#both vertices belong to same graph, no bijection
