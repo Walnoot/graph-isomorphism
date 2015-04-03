@@ -92,18 +92,19 @@ def recolor(colors):  # bg_1, bg_2, are not used
     # print("Done!")
     return True
 
-#creates the color dict based on the colornums of the vertices in the graph
+
+# creates the color dict based on the colornums of the vertices in the graph
 def create_color_dict(g, h):
     colors = {}
     for v in g._V:
-        list = colors.get(v.colornum, [])
-        list.append(v)
-        colors[v.colornum] = list
+        l = colors.get(v.colornum, [])
+        l.append(v)
+        colors[v.colornum] = l
     for v in h._V:
-        list = colors.get(v.colornum, [])
-        list.append(v)
-        colors[v.colornum] = list
-    
+        l = colors.get(v.colornum, [])
+        l.append(v)
+        colors[v.colornum] = l
+
     return colors
 
 #see slides lecture 2 page 23
@@ -111,49 +112,53 @@ def create_color_dict(g, h):
 def count_isomorphism(g, h, d=[], i=[]):
     #colors = {}
     #color_gradient(g, h, colors)
-
+    
     def set_colors(graph, l):
-        i=0
+        i = 0
         for v in graph:
             if v in l:
                 i += 1
                 v.colornum = i
             else:
                 v.colornum = 0
-    
+
     set_colors(g, d)
     set_colors(h, i)
     colors = create_color_dict(g, h)
-    
-    if not recolor(colors):  #recolor can return if the coloring is unbalanced
+
+    if not recolor(colors):  # recolor can return if the coloring is unbalanced
         return 0
 
     if defines_bijection(colors):
         return 1
 
-    if not is_balanced(colors):  #recolor doesnt always know if the coloring is unbalanced
+    if not is_balanced(colors):  # recolor doesnt always know if the coloring is unbalanced
         return 0
-    
-    #Choose a color class C with |C| ≥ 4
-    #note that c is the list of vertices, not an int representing the color
+
+    # Choose a color class C with |C| ≥ 4
+    # note that c is the list of vertices, not an int representing the color
     c = None
-    for color in colors:
-        if len(colors[color]) >= 4:
-            c = colors[color]
+    for color in colors.values():
+        if len(color) >= 4:
+            c = color
             break
-    
-    x = None  #vertex of g with color c
+
+    x = None  # vertex of g with color c
     for v in c:
         if v._graph is g:
             x = v
             break
-    
+
     num = 0
     for y in c:
         if y._graph is h:
-            num += count_isomorphism(g, h, d+[x], i+[y])
-    
+            num += count_isomorphism(g, h, d + [x], i + [y], stop_early=stop_early)
+            if stop_early:
+                if num > 0:  # found isomorphism, no need to continue if we dont care about the amount
+                    return num
+
     return num
+
 
 
 def generate_automorphism(g, h, found_permutations=[], d=[], i=[] ):
@@ -199,12 +204,12 @@ def generate_automorphism(g, h, found_permutations=[], d=[], i=[] ):
     return found_permutations
 
 def is_balanced(colors):
-    for color, vertices in colors.items():
-        if len(colors[color]) != 0:
-            num0 = 0#amount of vertices in graph0
-            num1 = 0#amount of vertices in the other graph
+    for vertices in colors.values():
+        if len(vertices) != 0:
+            num0 = 0  # amount of vertices in graph0
+            num1 = 0  # amount of vertices in the other graph
             graph0 = vertices[0]._graph
-            
+
             for vertex in vertices:
                 if vertex._graph is graph0:
                     num0 += 1
@@ -218,11 +223,11 @@ def is_balanced(colors):
 
 
 def defines_bijection(colors):
-    for color, vertices in colors.items():
-        if len(colors[color]) != 2:#found a color with #vertices != 2
+    for vertices in colors.values():
+        if len(vertices) != 2:  # found a color with #vertices != 2
             return False
-        
-        if vertices[0]._graph is vertices[1]._graph:#both vertices belong to same graph, no bijection
+
+        if vertices[0]._graph is vertices[1]._graph:  # both vertices belong to same graph, no bijection
             return False
 
     return True
@@ -263,6 +268,30 @@ def main():
     recolor(colors)  # bg1, bg2,
 
 
+def count_automorphisms(graph, gCopy, d=None, i=None):
+    """
+    Requires arguments gCopy to be a deepcopy of graph,
+    parameters d and i should be unused by anything but this recursive function itself
+    """
+    if d is None:
+        d = []
+    if i is None:
+        i = []
+
+    def set_colors(graph, l):
+        i = 0
+        for v in graph:
+            if v in l:
+                i += 1
+                v.colornum = i
+            else:
+                v.colornum = 0
+
+    set_colors(graph, d)
+    set_colors(gCopy, i)
+    colors = create_color_dict(graph, gCopy)
+
+
 def main_2():
     # crefBM_2_49 : These two graphs are isomorphic
     # crefBM_4_7 : 1 and 3 are isomorphic, 0 and 2 remain undecided, and all other pairs are not isomorphic.
@@ -286,12 +315,51 @@ def main_2():
     graphIO.writeDOT(bg2, 'res_2')
 
 
-def main_3():
-    tlist = graphIO.loadgraph('GI_TestInstancesWeek1/crefBM_4_7.grl', readlist=True)
-    bg1 = tlist[0][0]
-    bg2 = tlist[0][2]
+def print_isomorphisms(path):
+    graphs = graphIO.loadgraph(path, readlist=True)[0]
 
-    print(count_isomorphism(bg1, bg2))
+    checked_pairs = []
+    isomorphic_pairs = []
+
+    for i in range(len(graphs)):
+        for j in range(len(graphs)):
+            g = graphs[i]
+            h = graphs[j]
+
+            pair = (i, j)
+            if i != j and not (j, i) in checked_pairs:  # dont do automorphisms, dont do pairs twice
+                if count_isomorphism(g, h) > 0:
+                    isomorphic_pairs.append(pair)
+                checked_pairs.append(pair)
+
+    isomorphic_pairs.sort()
+    print("Pairs of isomorphic graphs")
+    for pair in isomorphic_pairs:
+        print(pair)
+
+
+def print_automorphisms(path):
+    # count_isomorphisms requires that the given graphs are separate instances
+    # one could load a graph and make a deep copy, however, since no modules may
+    # be imported it is easier to load the graphs twice
+    graphs1 = graphIO.loadgraph(path, readlist=True)[0]
+    graphs2 = graphIO.loadgraph(path, readlist=True)[0]
+
+    print("╔═════════╦══════════════╗")
+    print("║Graph:   ║#Automorphisms║")
+    print("╠═════════╬══════════════╣")
+    for i in range(len(graphs1)):
+        aut = count_isomorphism(graphs1[i], graphs2[i])
+        print("║{:>9}║{:>14}║".format(i, aut))
+    print("╚═════════╩══════════════╝")
+
+
+def main_3():
+    tlist = graphIO.loadgraph('GI_TestInstancesWeek1/crefBM_6_15.grl', readlist=True)
+    bg1 = tlist[0][4]
+    bg2 = tlist[0][5]
+
+    print(count_isomorphism(bg1, bg2, stop_early=True))
 
     # graphIO.writeDOT(bg1, 'res_1')
     # graphIO.writeDOT(bg2, 'res_2')
@@ -303,6 +371,10 @@ def main_4():
 
     print(generate_automorphism(bg1, bg2))
 
-#print(datetime.now().timestamp())
-#main_2()
-#print(datetime.now().timestamp())
+def speed_test():
+    t1 = datetime.now().timestamp()
+    print(t1)
+    main_2()
+    t2 = datetime.now().timestamp()
+    print(t2)
+    print('difference: ', (t2 - t1))
