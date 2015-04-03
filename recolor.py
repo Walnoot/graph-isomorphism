@@ -108,7 +108,14 @@ def create_color_dict(g, h):
 
 #see slides lecture 2 page 23
 #g and h instance of graph
-def count_isomorphism(g, h, d=[], i=[]):
+def count_isomorphism(g, h, d=[], i=[], stop_early=False):
+    """
+    Returns the number of isomorphisms between graphs g and h. If stop_early is specified,
+    the algorithm terminates as soon as an isomorphism is found, returns 1 if an isomorphism
+    is found, 0 if none.
+    If you want #Aut of a graph, one should create a deep copy of the graph as the second
+    argument before calling this function.
+    """
     #colors = {}
     #color_gradient(g, h, colors)
     
@@ -151,7 +158,10 @@ def count_isomorphism(g, h, d=[], i=[]):
     num = 0
     for y in c:
         if y._graph is h:
-            num += count_isomorphism(g, h, d+[x], i+[y])
+            num += count_isomorphism(g, h, d+[x], i+[y], stop_early=stop_early)
+            if stop_early:
+                if num > 0:  #found isomorphism, no need to continue if we dont care about the amount
+                    return num
     
     return num
 
@@ -242,17 +252,37 @@ def main_2():
     graphIO.writeDOT(bg1, 'res_1')
     graphIO.writeDOT(bg2, 'res_2')
 
+def print_isomorphisms(path):
+    graphs = tlist = graphIO.loadgraph(path, readlist=True)[0]
+    
+    checked_pairs = []
+    isomorphic_pairs = []
+    
+    for i in range(len(graphs)):
+        for j in range(len(graphs)):
+            g = graphs[i]
+            h = graphs[j]
+            
+            pair = (i, j)
+            if(i != j and not (j, i) in checked_pairs):  #dont do automorphisms, dont do pairs twice
+                if(count_isomorphism(g, h) > 0):
+                    isomorphic_pairs.append(pair)
+                checked_pairs.append(pair)
+    
+    isomorphic_pairs.sort()
+    print("Pairs of isomorphic graphs")
+    for pair in isomorphic_pairs:
+        print(pair)
 
 def main_3():
-    tlist = graphIO.loadgraph('GI_TestInstancesWeek1/crefBM_4_7.grl', readlist=True)
-    bg1 = tlist[0][0]
-    bg2 = tlist[0][2]
+    tlist = graphIO.loadgraph('GI_TestInstancesWeek1/crefBM_6_15.grl', readlist=True)
+    bg1 = tlist[0][4]
+    bg2 = tlist[0][5]
 
-    print(count_isomorphism(bg1, bg2))
+    print(count_isomorphism(bg1, bg2, stop_early=True))
 
     # graphIO.writeDOT(bg1, 'res_1')
     # graphIO.writeDOT(bg2, 'res_2')
-
 
 #print(datetime.now().timestamp())
 #main_2()
