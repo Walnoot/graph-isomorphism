@@ -286,6 +286,7 @@ def print_automorphisms(path):
     print("╠═════════╬══════════════╣")
     for i in range(len(graphs1)):
         aut = count_isomorphism(graphs1[i], graphs2[i])
+        
         print("║{:>9}║{:>14}║".format(i, aut))
     print("╚═════════╩══════════════╝")
         
