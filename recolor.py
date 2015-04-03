@@ -111,7 +111,7 @@ def create_color_dict(g, h):
 def count_isomorphism(g, h, d=[], i=[]):
     #colors = {}
     #color_gradient(g, h, colors)
-    
+
     def set_colors(graph, l):
         i=0
         for v in graph:
@@ -154,6 +154,49 @@ def count_isomorphism(g, h, d=[], i=[]):
             num += count_isomorphism(g, h, d+[x], i+[y])
     
     return num
+
+
+def generate_automorphism(g, h, found_permutations=[], d=[], i=[] ):
+    def set_colors(graph, l):
+        i=0
+        for v in graph:
+            if v in l:
+                i += 1
+                v.colornum = i
+            else:
+                v.colornum = 0
+
+    #use color refinement on G disjoint union H, starting with alpha(d,i)
+    set_colors(g, d)
+    set_colors(h, i)
+    colors = create_color_dict(g, h)
+
+    # find out if, from the current sequences, a automorphism follows
+    if not recolor(colors):
+        return
+
+    if not is_balanced(colors):
+        return
+
+    c = None
+    for color in colors:
+        if len(colors[color]) >= 2:
+            c = colors[color]
+            break
+
+    if(c not in found_permutations):
+        num = 0
+        vertices = g.V()
+        if(len(c) >= 2):
+            x = vertices[0]
+            print(x)
+            for y in c:
+                if y._graph is h:
+                    branch_permutations = generate_automorphism(g, h, found_permutations, d+[x], i+[y])
+                    if(branch_permutations != None ):
+                        found_permutations += branch_permutations
+
+    return found_permutations
 
 def is_balanced(colors):
     for color, vertices in colors.items():
@@ -253,6 +296,12 @@ def main_3():
     # graphIO.writeDOT(bg1, 'res_1')
     # graphIO.writeDOT(bg2, 'res_2')
 
+def main_4():
+    tlist = graphIO.loadgraph('GI_TestInstancesWeek1/crefBM_4_7.grl', readlist=True)
+    bg1 = tlist[0][0]
+    bg2 = tlist[0][2]
+
+    print(generate_automorphism(bg1, bg2))
 
 #print(datetime.now().timestamp())
 #main_2()
