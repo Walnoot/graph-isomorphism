@@ -230,6 +230,12 @@ def main():
     recolor(colors)  # bg1, bg2,
 
 
+def count_automorphisms(graph, gCopy):
+    """
+    requires arguments gCopy to be a deepcopy of graph
+    """
+
+
 def main_2():
     # crefBM_2_49 : These two graphs are isomorphic
     # crefBM_4_7 : 1 and 3 are isomorphic, 0 and 2 remain undecided, and all other pairs are not isomorphic.
