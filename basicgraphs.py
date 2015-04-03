@@ -37,7 +37,7 @@ class vertex():
         """
         self._graph = graph
         self._label = label
-        self._neighbours = None
+        self.colornum = 0
 
     def __repr__(self):
         return str(self._label)
@@ -63,15 +63,22 @@ class vertex():
         Returns the list of neighbors of vertex <self>.
         In case of parallel edges: duplicates are not removed from this list!
         """
-        # if self._neighbours != None:
-        # return self._neighbours
 
         nbl = []
         for e in self.inclist():
             nbl.append(e.otherend(self))
 
-        # self._neighbours = nbl
         return nbl
+
+    def get_cached_nbs(self, rebuild_cache=False):
+        """
+        Returns a cached list of neighbors of vertex <self>.
+        In case of parallel edges: duplicates are not removed from this list!
+        """
+        if not hasattr(self, '_neighbours') or rebuild_cache:
+            self._neighbours = self.nbs()
+
+        return self._neighbours
 
     def deg(self):
         """
