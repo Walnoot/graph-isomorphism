@@ -12,7 +12,7 @@ if __name__ == "__main__":
 	if(mode == "-i"):
 		print_isomorphisms(path)
 	elif(mode == "-a"):
-		print("counting automorphisms")
+		print_automorphisms(path)
 	else:
 		print("unknown option")
 		exit(1)
