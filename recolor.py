@@ -253,7 +253,7 @@ def main_2():
     graphIO.writeDOT(bg2, 'res_2')
 
 def print_isomorphisms(path):
-    graphs = tlist = graphIO.loadgraph(path, readlist=True)[0]
+    graphs = graphIO.loadgraph(path, readlist=True)[0]
     
     checked_pairs = []
     isomorphic_pairs = []
@@ -273,6 +273,22 @@ def print_isomorphisms(path):
     print("Pairs of isomorphic graphs")
     for pair in isomorphic_pairs:
         print(pair)
+
+def print_automorphisms(path):
+    #count_isomorphisms requires that the given graphs are separate instances
+    #one could load a graph and make a deep copy, however, since no modules may
+    #be imported it is easier to load the graphs twice
+    graphs1 = graphIO.loadgraph(path, readlist=True)[0]
+    graphs2 = graphIO.loadgraph(path, readlist=True)[0]
+    
+    print("╔═════════╦══════════════╗")
+    print("║Graph:   ║#Automorphisms║")
+    print("╠═════════╬══════════════╣")
+    for i in range(len(graphs1)):
+        aut = count_isomorphism(graphs1[i], graphs2[i])
+        print("║{:>9}║{:>14}║".format(i, aut))
+    print("╚═════════╩══════════════╝")
+        
 
 def main_3():
     tlist = graphIO.loadgraph('GI_TestInstancesWeek1/crefBM_6_15.grl', readlist=True)
