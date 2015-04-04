@@ -278,8 +278,8 @@ def generate_automorphisms(graph, gCopy, verticesD, verticesI, x):  # lowercamel
         # print(mapping)
         # add to generating set (assuming we return to trivial node, by pruning rule #1)
         perm = permutation(len(mapping), mapping=mapping)
-        if mapping != list(range(0, len(mapping))):
-            x.append(perm)
+        #if mapping != list(range(0, len(mapping))):
+        x.append(perm)
         return True  # return to last visited trivial ancestor
 
     # multiple automorphisms
@@ -368,18 +368,25 @@ def print_isomorphisms(path):
         print(pair)
 
 
-def check_autmorphism_generators():
+def check_autmorphism_generators(name='cubes6', id=2):
     # generate_autmorphisms requires that the given graphs are separate instances
     # one could load a graph and make a deep copy, however, since no modules may
     # be imported it is easier to load the graphs twice
-    tlist = graphIO.loadgraph('test_2/cubes6.grl', readlist=True)
-    bg1 = tlist[0][2]
-    tlist = graphIO.loadgraph('test_2/cubes6.grl', readlist=True)
-    bg2 = tlist[0][2]
+    tlist = graphIO.loadgraph('test_2/' + name + '.grl', readlist=True)
+    bg1 = tlist[0][id]
+    tlist = graphIO.loadgraph('test_2/' + name + '.grl', readlist=True)
+    bg2 = tlist[0][id]
 
     x = []
     generate_automorphisms(bg1, bg2, [], [], x)
     print("Order of the graph automorphisms:", permgrputil.order(x))
+
+
+    # torus24 and cubes6 work fully
+    # difference factor 4: products72[1] (all others work)
+    # trees90[2] and trees90[0] differ factor 4, trees90[1] and trees90[3] equal 4 resp. 2
+    # cographs1[1] differs factor 2, cographs1[2] equals 4, cographs1[0] equals 2, cographs1[3] differs factor 4
+    # bigtrees1[0] equals 2, bigtrees1[2] equals 512, bigtrees1[1] equals 2048, bigtrees1[3] equals 8 << all plain wrong
 
 
 def print_automorphisms(path):
