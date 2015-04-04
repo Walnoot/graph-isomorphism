@@ -130,11 +130,12 @@ def count_isomorphism(g, h, d=None, i=None, stop_early=False):
     # color_gradient(g, h, colors)
 
     def set_colors(graph, l):
-        i = 0
         for v in graph:
             if v in l:
-                i += 1
-                v.colornum = i
+                for i in range(0, len(l)):
+                    if l[i] == v:
+                        v.colornum = i+1
+                        break
             else:
                 v.colornum = 0
 
@@ -248,7 +249,6 @@ def generate_automorphisms(graph, gCopy, verticesD, verticesI, x):  # lowercamel
     """
 
     def set_colors(graph, l):
-        cnt = 0
         for v in graph:
             if v in l:
                 for i in range(0, len(l)):
@@ -398,11 +398,6 @@ def check_autmorphism_generators(name='cubes6', id=-1):
         generate_automorphisms(bg1, bg2, [], [], x)
         print("Order of the graph automorphisms in "+name+"[" + str(i) + "]: " + str(permgrputil.order(x)))
 
-
-    # torus24 , cubes6, products72 work fully
-    # trees90[2] and trees90[0] differ factor 4, trees90[1] and trees90[3] equal 4 resp. 2
-    # cographs1[1] differs factor 2, cographs1[2] equals 4, cographs1[0] equals 2, cographs1[3] differs factor 4
-    # bigtrees1[0] equals 2, bigtrees1[2] equals 512, bigtrees1[1] equals 2048, bigtrees1[3] equals 8 << all plain wrong
 
 
 def print_automorphisms(path):
