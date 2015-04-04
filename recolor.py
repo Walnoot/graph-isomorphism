@@ -3,7 +3,7 @@ from datetime import datetime
 import graphIO
 import permgrputil
 from permv2 import permutation
-
+from basicpermutationgroup import Orbit
 
 def color_gradient(bg_1, bg_2, colors):
     # types correct?
@@ -280,8 +280,8 @@ def generate_automorphisms(graph, gCopy, verticesD, verticesI, x):  # lowercamel
         # print(mapping)
         # add to generating set (assuming we return to trivial node, by pruning rule #1)
         perm = permutation(len(mapping), mapping=mapping)
-        #if mapping != list(range(0, len(mapping))):
-        x.append(perm)
+        if mapping != list(range(0, len(mapping))):
+            x.append(perm)
         return True  # return to last visited trivial ancestor
 
     # multiple automorphisms
@@ -322,13 +322,31 @@ def generate_automorphisms(graph, gCopy, verticesD, verticesI, x):  # lowercamel
             if v._label == newEl._label:
                 checklist[0], checklist[len(checklist) - 1] = v, checklist[0]
 
+    # returns the orbit of an generating set and a specific element, used for the second pruning rule
+    def get_orbit(x, label):
+        orb = Orbit(x, newEl._label)
+        # is the orbit in format([list], None), instead of [list]?
+        if len(orb) == 2 and orb[1] == None:
+            return orb[0]
+
+        return orb
+
+    # calculate whether D, I is trivial, used for second pruning rule
+    trivial = True
+    for i in range(0, len(verticesD)):
+        if verticesD[i]._label != verticesI[i]._label:
+            trivial = False
+            break
 
     for v in checklist:
-        res = generate_automorphisms(graph, gCopy, verticesD + [newEl], verticesI + [v], x)
-        if res:  # return to last trivial ancestor
-            for i in range(0, len(verticesD)):
-                if verticesD[i]._label != verticesI[i]._label:
-                    return True  # not trivial, return to last trivial ancestor
+        # this version of the second pruning rule only applies to branches of a trivial mapping, otherwise it should not be applied
+        # checkes whether the automorphism created with mapping newEl to (non trivial!) v is already produces by the generating set
+        if (not trivial) or (newEl._label == v._label) or (not v._label in get_orbit(x, newEl._label)):
+            res = generate_automorphisms(graph, gCopy, verticesD + [newEl], verticesI + [v], x)
+            if res:  # return to last trivial ancestor
+                for i in range(0, len(verticesD)):
+                    if verticesD[i]._label != verticesI[i]._label:
+                        return True  # not trivial, return to last trivial ancestor
 
     return False
 
@@ -378,6 +396,13 @@ def print_isomorphisms(path):
     for pair in isomorphic_pairs:
         print(pair)
 
+def check_autmorphism_generators_time(name='cubes6', id=-1):
+    t1 = datetime.now().timestamp()
+    print(t1)
+    check_autmorphism_generators(name, id)
+    t2 = datetime.now().timestamp()
+    print(t2)
+    print('difference: ', (t2 - t1))
 
 def check_autmorphism_generators(name='cubes6', id=-1):
     # generate_autmorphisms requires that the given graphs are separate instances
