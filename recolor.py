@@ -251,8 +251,10 @@ def generate_automorphisms(graph, gCopy, verticesD, verticesI, x):  # lowercamel
         cnt = 0
         for v in graph:
             if v in l:
-                cnt += 1
-                v.colornum = cnt
+                for i in range(0, len(l)):
+                    if l[i] == v:
+                        v.colornum = i+1
+                        break
             else:
                 v.colornum = 0
 
@@ -285,32 +287,41 @@ def generate_automorphisms(graph, gCopy, verticesD, verticesI, x):  # lowercamel
     # multiple automorphisms
 
     # Choose a color class C with |C| ≥ 4
-    c = None
+    col = None
+    newEl = None
     instBreak = False
     for color in colors.values():
         if len(color) >= 4:
-            c = color
-            for i in range(0, len(verticesD)):
-                if verticesD[i]._label == verticesI[i]._label:
-                    instBreak = True
-                    break
-            if instBreak:  # because my teammembers do not allow me to use a try-catch
+            col = color
+            for v1 in col:
+                if v1._graph is graph:
+                    for v2 in col:
+                        if v2._graph is gCopy and v1._label == v2._label:
+                            newEl = v1
+                            instBreak = True
+                            break
+                    if instBreak: # because my teammembers do not allow me to use a try-catch
+                        break
+            if instBreak:  # idem 
                 break
 
-    newEl = None  # vertex of graph with color c
-    for v in c:
-        if v._graph is graph:
-            newEl = v
-            break
+
+    # no trivial color has been found, thus no vertex with trivial option can be selected either
+    if newEl == None:
+        for v in col:
+            if v._graph is graph:
+                newEl = v
+                break
 
     # build list of vertices of gCopy to check, while also looking for a similar node as newEl
     # this guarantees that it starts with the trivial node, if possible
-    checklist = []
-    for v in c:
+    checklist = []  
+    for v in col:
         if v._graph is gCopy:
             checklist.append(v)
             if v._label == newEl._label:
                 checklist[0], checklist[len(checklist) - 1] = v, checklist[0]
+
 
     for v in checklist:
         res = generate_automorphisms(graph, gCopy, verticesD + [newEl], verticesI + [v], x)
@@ -368,22 +379,27 @@ def print_isomorphisms(path):
         print(pair)
 
 
-def check_autmorphism_generators(name='cubes6', id=2):
+def check_autmorphism_generators(name='cubes6', id=-1):
     # generate_autmorphisms requires that the given graphs are separate instances
     # one could load a graph and make a deep copy, however, since no modules may
     # be imported it is easier to load the graphs twice
     tlist = graphIO.loadgraph('test_2/' + name + '.grl', readlist=True)
-    bg1 = tlist[0][id]
-    tlist = graphIO.loadgraph('test_2/' + name + '.grl', readlist=True)
-    bg2 = tlist[0][id]
+    tlist2 = graphIO.loadgraph('test_2/' + name + '.grl', readlist=True)
 
-    x = []
-    generate_automorphisms(bg1, bg2, [], [], x)
-    print("Order of the graph automorphisms:", permgrputil.order(x))
+    ids = [id]
+    if id == -1:
+        ids = range(0, len(tlist[0]))
+
+    for i in ids:
+        bg1 = tlist[0][i]
+        bg2 = tlist2[0][i]
+
+        x = []
+        generate_automorphisms(bg1, bg2, [], [], x)
+        print("Order of the graph automorphisms in "+name+"[" + str(i) + "]: " + str(permgrputil.order(x)))
 
 
-    # torus24 and cubes6 work fully
-    # difference factor 4: products72[1] (all others work)
+    # torus24 , cubes6, products72 work fully
     # trees90[2] and trees90[0] differ factor 4, trees90[1] and trees90[3] equal 4 resp. 2
     # cographs1[1] differs factor 2, cographs1[2] equals 4, cographs1[0] equals 2, cographs1[3] differs factor 4
     # bigtrees1[0] equals 2, bigtrees1[2] equals 512, bigtrees1[1] equals 2048, bigtrees1[3] equals 8 << all plain wrong
