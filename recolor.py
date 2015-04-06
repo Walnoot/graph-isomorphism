@@ -5,6 +5,7 @@ import permgrputil
 from permv2 import permutation
 from basicpermutationgroup import Orbit
 
+
 def color_gradient(bg_1, bg_2, colors):
     # types correct?
     if not (isinstance(bg_1, graph) and isinstance(bg_2, graph)):
@@ -134,7 +135,7 @@ def count_isomorphism(g, h, d=None, i=None, stop_early=False):
             if v in l:
                 for i in range(0, len(l)):
                     if l[i] == v:
-                        v.colornum = i+1
+                        v.colornum = i + 1
                         break
             else:
                 v.colornum = 0
@@ -253,7 +254,7 @@ def generate_automorphisms(graph, gCopy, verticesD, verticesI, x):  # lowercamel
             if v in l:
                 for i in range(0, len(l)):
                     if l[i] == v:
-                        v.colornum = i+1
+                        v.colornum = i + 1
                         break
             else:
                 v.colornum = 0
@@ -300,14 +301,13 @@ def generate_automorphisms(graph, gCopy, verticesD, verticesI, x):  # lowercamel
                             newEl = v1
                             instBreak = True
                             break
-                    if instBreak: # because my teammembers do not allow me to use a try-catch
+                    if instBreak:  # because my teammembers do not allow me to use a try-catch
                         break
             if instBreak:  # idem 
                 break
 
-
     # no trivial color has been found, thus no vertex with trivial option can be selected either
-    if newEl == None:
+    if newEl is None:
         for v in col:
             if v._graph is graph:
                 newEl = v
@@ -315,7 +315,7 @@ def generate_automorphisms(graph, gCopy, verticesD, verticesI, x):  # lowercamel
 
     # build list of vertices of gCopy to check, while also looking for a similar node as newEl
     # this guarantees that it starts with the trivial node, if possible
-    checklist = []  
+    checklist = []
     for v in col:
         if v._graph is gCopy:
             checklist.append(v)
@@ -326,7 +326,7 @@ def generate_automorphisms(graph, gCopy, verticesD, verticesI, x):  # lowercamel
     def get_orbit(x, label):
         orb = Orbit(x, newEl._label)
         # is the orbit in format([list], None), instead of [list]?
-        if len(orb) == 2 and orb[1] == None:
+        if len(orb) == 2 and orb[1] is None:
             return orb[0]
 
         return orb
@@ -339,8 +339,9 @@ def generate_automorphisms(graph, gCopy, verticesD, verticesI, x):  # lowercamel
             break
 
     for v in checklist:
-        # this version of the second pruning rule only applies to branches of a trivial mapping, otherwise it should not be applied
-        # checkes whether the automorphism created with mapping newEl to (non trivial!) v is already produces by the generating set
+        # this version of the second pruning rule only applies to branches of a trivial mapping,
+        # otherwise it should not be applied checkes whether the automorphism created with mapping newEl
+        #  to (non trivial!) v is already produces by the generating set
         if (not trivial) or (newEl._label == v._label) or (not v._label in get_orbit(x, newEl._label)):
             res = generate_automorphisms(graph, gCopy, verticesD + [newEl], verticesI + [v], x)
             if res:  # return to last trivial ancestor
@@ -396,6 +397,7 @@ def print_isomorphisms(path):
     for pair in isomorphic_pairs:
         print(pair)
 
+
 def check_autmorphism_generators_time(name='cubes6', id=-1):
     t1 = datetime.now().timestamp()
     print(t1)
@@ -403,6 +405,7 @@ def check_autmorphism_generators_time(name='cubes6', id=-1):
     t2 = datetime.now().timestamp()
     print(t2)
     print('difference: ', (t2 - t1))
+
 
 def check_autmorphism_generators(name='cubes6', id=-1):
     # generate_autmorphisms requires that the given graphs are separate instances
@@ -421,8 +424,7 @@ def check_autmorphism_generators(name='cubes6', id=-1):
 
         x = []
         generate_automorphisms(bg1, bg2, [], [], x)
-        print("Order of the graph automorphisms in "+name+"[" + str(i) + "]: " + str(permgrputil.order(x)))
-
+        print("Order of the graph automorphisms in " + name + "[" + str(i) + "]: " + str(permgrputil.order(x)))
 
 
 def print_automorphisms(path):
