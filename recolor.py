@@ -324,7 +324,7 @@ def generate_automorphisms(graph, gCopy, verticesD, verticesI, x):  # lowercamel
 
     # returns the orbit of an generating set and a specific element, used for the second pruning rule
     def get_orbit(x, label):
-        orb = Orbit(x, newEl._label)
+        orb = Orbit(x, label)
         # is the orbit in format([list], None), instead of [list]?
         if len(orb) == 2 and orb[1] == None:
             return orb[0]
