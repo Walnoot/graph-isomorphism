@@ -341,11 +341,10 @@ def generate_automorphisms(graph, gCopy, verticesD, verticesI, x):  # lowercamel
         # to (non trivial!) v is already produces by the generating set
         if (not trivial) or (newEl._label == v._label) or (not v._label in get_orbit(x, newEl._label)):
             res = generate_automorphisms(graph, gCopy, verticesD + [newEl], verticesI + [v], x)
-            if res:  # return to last trivial ancestor
-                for i in range(0, len(verticesD)):
-                    if verticesD[i]._label != verticesI[i]._label:
-                        return True  # not trivial, return to last trivial ancestor
+            if res and not trivial:  # return to last trivial ancestor
+                return True  # not trivial, return to last trivial ancestor
 
+    # No automorphism found
     return False
 
 
