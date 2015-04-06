@@ -385,7 +385,7 @@ def print_isomorphisms(path):
 
             pair = (i, j)
             if i != j and not (j, i) in checked_pairs:  # dont do automorphisms, dont do pairs twice
-                if count_isomorphism(g, h) > 0:
+                if count_isomorphism(g, h, stop_early=True) > 0:
                     isomorphic_pairs.append(pair)
                 checked_pairs.append(pair)
 
