@@ -5,7 +5,6 @@ import permgrputil
 from permv2 import permutation
 from basicpermutationgroup import Orbit
 
-
 def color_gradient(bg_1, bg_2, colors):
     # types correct?
     if not (isinstance(bg_1, graph) and isinstance(bg_2, graph)):
@@ -110,18 +109,32 @@ def create_color_dict(g, h):
 
     return colors
 
-#see slides lecture 2 page 23
-#g and h instance of graph
-def count_isomorphism(g, h, d=[], i=[], stop_early=False):
-    #colors = {}
-    #color_gradient(g, h, colors)
+
+# see slides lecture 2 page 23
+# g and h instance of graph
+def count_isomorphism(g, h, d=None, i=None, stop_early=False):
+    """
+    Returns the number of isomorphisms between graphs g and h. If stop_early is specified,
+    the algorithm terminates as soon as an isomorphism is found, returns 1 if an isomorphism
+    is found, 0 if none.
+    If you want #Aut of a graph, one should create a deep copy of the graph as the second
+    argument before calling this function.
+    """
+
+    if d is None:
+        d = []
+    if i is None:
+        i = []
+
+    # colors = {}
+    # color_gradient(g, h, colors)
 
     def set_colors(graph, l):
         for v in graph:
             if v in l:
                 for i in range(0, len(l)):
                     if l[i] == v:
-                        v.colornum = i + 1
+                        v.colornum = i+1
                         break
             else:
                 v.colornum = 0
@@ -162,6 +175,7 @@ def count_isomorphism(g, h, d=[], i=[], stop_early=False):
                     return num
 
     return num
+
 
 def is_balanced(colors):
     for vertices in colors.values():
@@ -239,7 +253,7 @@ def generate_automorphisms(graph, gCopy, verticesD, verticesI, x):  # lowercamel
             if v in l:
                 for i in range(0, len(l)):
                     if l[i] == v:
-                        v.colornum = i + 1
+                        v.colornum = i+1
                         break
             else:
                 v.colornum = 0
@@ -275,19 +289,25 @@ def generate_automorphisms(graph, gCopy, verticesD, verticesI, x):  # lowercamel
     # Choose a color class C with |C| ≥ 4
     col = None
     newEl = None
+    instBreak = False
     for color in colors.values():
         if len(color) >= 4:
             col = color
             for v1 in col:
                 if v1._graph is graph:
-                    newEl = next((v1 for v2 in col if (v2._graph is gCopy) and (v1._label == v2._label)), None);
-                    if(newEl != None):
+                    for v2 in col:
+                        if v2._graph is gCopy and v1._label == v2._label:
+                            newEl = v1
+                            instBreak = True
+                            break
+                    if instBreak: # because my teammembers do not allow me to use a try-catch
                         break
-            if newEl != None:
+            if instBreak:  # idem
                 break
 
+
     # no trivial color has been found, thus no vertex with trivial option can be selected either
-    if newEl is None:
+    if newEl == None:
         for v in col:
             if v._graph is graph:
                 newEl = v
@@ -304,11 +324,12 @@ def generate_automorphisms(graph, gCopy, verticesD, verticesI, x):  # lowercamel
 
     # returns the orbit of an generating set and a specific element, used for the second pruning rule
     def get_orbit(x, label):
-        # empty generator set
-        if len(x) == 0:
-            return [label]
+        orb = Orbit(x, newEl._label)
+        # is the orbit in format([list], None), instead of [list]?
+        if len(orb) == 2 and orb[1] == None:
+            return orb[0]
 
-        return Orbit(x, label)
+        return orb
 
     # calculate whether D, I is trivial, used for second pruning rule
     trivial = True
@@ -318,9 +339,8 @@ def generate_automorphisms(graph, gCopy, verticesD, verticesI, x):  # lowercamel
             break
 
     for v in checklist:
-        # this version of the second pruning rule only applies to branches of a trivial mapping,
-        # otherwise it should not be applied checkes whether the automorphism created with mapping newEl
-        #  to (non trivial!) v is already produces by the generating set
+        # this version of the second pruning rule only applies to branches of a trivial mapping, otherwise it should not be applied
+        # checkes whether the automorphism created with mapping newEl to (non trivial!) v is already produces by the generating set
         if (not trivial) or (newEl._label == v._label) or (not v._label in get_orbit(x, newEl._label)):
             res = generate_automorphisms(graph, gCopy, verticesD + [newEl], verticesI + [v], x)
             if res:  # return to last trivial ancestor
@@ -376,7 +396,6 @@ def print_isomorphisms(path):
     for pair in isomorphic_pairs:
         print(pair)
 
-
 def check_autmorphism_generators_time(name='cubes6', id=-1):
     t1 = datetime.now().timestamp()
     print(t1)
@@ -384,7 +403,6 @@ def check_autmorphism_generators_time(name='cubes6', id=-1):
     t2 = datetime.now().timestamp()
     print(t2)
     print('difference: ', (t2 - t1))
-
 
 def check_autmorphism_generators(name='cubes6', id=-1):
     # generate_autmorphisms requires that the given graphs are separate instances
@@ -403,7 +421,8 @@ def check_autmorphism_generators(name='cubes6', id=-1):
 
         x = []
         generate_automorphisms(bg1, bg2, [], [], x)
-        print("Order of the graph automorphisms in " + name + "[" + str(i) + "]: " + str(permgrputil.order(x)))
+        print("Order of the graph automorphisms in "+name+"[" + str(i) + "]: " + str(permgrputil.order(x)))
+
 
 
 def print_automorphisms(path):
@@ -432,11 +451,6 @@ def main_3():
     # graphIO.writeDOT(bg1, 'res_1')
     # graphIO.writeDOT(bg2, 'res_2')
 
-def main_4():
-    tlist = graphIO.loadgraph('GI_TestInstancesWeek1/crefBM_4_7.grl', readlist=True)
-    bg1 = tlist[0][0]
-    bg2 = tlist[0][2]
-    print(generate_automorphism(bg1, bg2))
 
 def speed_test():
     t1 = datetime.now().timestamp()
@@ -445,4 +459,3 @@ def speed_test():
     t2 = datetime.now().timestamp()
     print(t2)
     print('difference: ', (t2 - t1))
-
