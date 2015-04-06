@@ -114,7 +114,7 @@ def create_color_dict(g, h):
 def count_isomorphism(g, h, d=[], i=[], stop_early=False):
     #colors = {}
     #color_gradient(g, h, colors)
-    
+
     def set_colors(graph, l):
         for v in graph:
             if v in l:
@@ -161,50 +161,6 @@ def count_isomorphism(g, h, d=[], i=[], stop_early=False):
                     return num
 
     return num
-
-
-
-def generate_automorphism(g, h, found_permutations=[], d=[], i=[] ):
-    def set_colors(graph, l):
-        i=0
-        for v in graph:
-            if v in l:
-                i += 1
-                v.colornum = i
-            else:
-                v.colornum = 0
-
-    #use color refinement on G disjoint union H, starting with alpha(d,i)
-    set_colors(g, d)
-    set_colors(h, i)
-    colors = create_color_dict(g, h)
-
-    # find out if, from the current sequences, a automorphism follows
-    if not recolor(colors):
-        return
-
-    if not is_balanced(colors):
-        return
-
-    c = None
-    for color in colors:
-        if len(colors[color]) >= 2:
-            c = colors[color]
-            break
-
-    if(c not in found_permutations):
-        num = 0
-        vertices = g.V()
-        if(len(c) >= 2):
-            x = vertices[0]
-            print(x)
-            for y in c:
-                if y._graph is h:
-                    branch_permutations = generate_automorphism(g, h, found_permutations, d+[x], i+[y])
-                    if(branch_permutations != None ):
-                        found_permutations += branch_permutations
-
-    return found_permutations
 
 def is_balanced(colors):
     for vertices in colors.values():
@@ -318,22 +274,16 @@ def generate_automorphisms(graph, gCopy, verticesD, verticesI, x):  # lowercamel
     # Choose a color class C with |C| ≥ 4
     col = None
     newEl = None
-    instBreak = False
     for color in colors.values():
         if len(color) >= 4:
             col = color
             for v1 in col:
                 if v1._graph is graph:
-                    for v2 in col:
-                        if v2._graph is gCopy and v1._label == v2._label:
-                            newEl = v1
-                            instBreak = True
-                            break
-                    if instBreak: # because my teammembers do not allow me to use a try-catch
+                    newEl = next((v1 for v2 in col if (v2._graph is gCopy) and (v1._label == v2._label)), None);
+                    if(newEl != None):
                         break
-            if instBreak:  # idem 
+            if newEl != None:
                 break
-
 
     # no trivial color has been found, thus no vertex with trivial option can be selected either
     if newEl == None:
@@ -344,7 +294,7 @@ def generate_automorphisms(graph, gCopy, verticesD, verticesI, x):  # lowercamel
 
     # build list of vertices of gCopy to check, while also looking for a similar node as newEl
     # this guarantees that it starts with the trivial node, if possible
-    checklist = []  
+    checklist = []
     for v in col:
         if v._graph is gCopy:
             checklist.append(v)
@@ -493,3 +443,5 @@ def speed_test():
     t2 = datetime.now().timestamp()
     print(t2)
     print('difference: ', (t2 - t1))
+
+check_autmorphism_generators("bigtrees2")
