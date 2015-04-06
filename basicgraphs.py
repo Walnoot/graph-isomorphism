@@ -13,6 +13,7 @@ However, the data structure used is quite basic and inefficient: a graph object 
 unsafe = False
 # Set to True for faster, but unsafe listing of all vertices and edges.
 
+
 class GraphError(Exception):
     def __init__(self, message):
         self.mess = message

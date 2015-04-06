@@ -1,7 +1,9 @@
 from basicgraphs import graph  # , GraphError, vertex, edge
 from datetime import datetime
 import graphIO
-
+import permgrputil
+from permv2 import permutation
+from basicpermutationgroup import Orbit
 
 def color_gradient(bg_1, bg_2, colors):
     # types correct?
@@ -59,7 +61,7 @@ def recolor(colors):  # bg_1, bg_2, are not used
         # for each 'color' c , but actually for each value which is a list over vertexes
         for c in vertex_lists:
             # if the number of vertexes is odd, the coloring is unbalanced, we can stop
-            if len(c) % 2 != 0:
+            if len(c) % 2 == 1:
                 return False
             else:
                 c_list = []  # list with tuples ([neighbour colors], vertex)
@@ -114,11 +116,12 @@ def count_isomorphism(g, h, d=[], i=[], stop_early=False):
     #color_gradient(g, h, colors)
     
     def set_colors(graph, l):
-        i = 0
         for v in graph:
             if v in l:
-                i += 1
-                v.colornum = i
+                for i in range(0, len(l)):
+                    if l[i] == v:
+                        v.colornum = i+1
+                        break
             else:
                 v.colornum = 0
 
@@ -268,28 +271,113 @@ def main():
     recolor(colors)  # bg1, bg2,
 
 
-def count_automorphisms(graph, gCopy, d=None, i=None):
+def generate_automorphisms(graph, gCopy, verticesD, verticesI, x):  # lowercamelcase #ftw #yolo
     """
-    Requires arguments gCopy to be a deepcopy of graph,
-    parameters d and i should be unused by anything but this recursive function itself
+    requires arguments gCopy to be a deepcopy of graph, parameters d, i and x should be []
+    return type is irrelevant for the working principle of this function, that is reserved for internal purposes only
     """
-    if d is None:
-        d = []
-    if i is None:
-        i = []
 
     def set_colors(graph, l):
-        i = 0
         for v in graph:
             if v in l:
-                i += 1
-                v.colornum = i
+                for i in range(0, len(l)):
+                    if l[i] == v:
+                        v.colornum = i+1
+                        break
             else:
                 v.colornum = 0
 
-    set_colors(graph, d)
-    set_colors(gCopy, i)
+    # set original colors, only based on D and I
+    set_colors(graph, verticesD)
+    set_colors(gCopy, verticesI)
     colors = create_color_dict(graph, gCopy)
+
+    if not recolor(colors):  # recolor can return if the coloring is unbalanced
+        return False
+    if not is_balanced(colors):  # recolor doesnt always know if the coloring is unbalanced
+        return False
+
+    # unique automorphism
+    if defines_bijection(colors):
+        mapping = list(range(0, len(graph._V)))
+        for i in range(0, len(colors)):
+            if colors[i][0] in graph:
+                mapping[colors[i][0]._label] = colors[i][1]._label
+            else:
+                mapping[colors[i][1]._label] = colors[i][0]._label
+
+        # print(mapping)
+        # add to generating set (assuming we return to trivial node, by pruning rule #1)
+        perm = permutation(len(mapping), mapping=mapping)
+        if mapping != list(range(0, len(mapping))):
+            x.append(perm)
+        return True  # return to last visited trivial ancestor
+
+    # multiple automorphisms
+
+    # Choose a color class C with |C| ≥ 4
+    col = None
+    newEl = None
+    instBreak = False
+    for color in colors.values():
+        if len(color) >= 4:
+            col = color
+            for v1 in col:
+                if v1._graph is graph:
+                    for v2 in col:
+                        if v2._graph is gCopy and v1._label == v2._label:
+                            newEl = v1
+                            instBreak = True
+                            break
+                    if instBreak: # because my teammembers do not allow me to use a try-catch
+                        break
+            if instBreak:  # idem 
+                break
+
+
+    # no trivial color has been found, thus no vertex with trivial option can be selected either
+    if newEl == None:
+        for v in col:
+            if v._graph is graph:
+                newEl = v
+                break
+
+    # build list of vertices of gCopy to check, while also looking for a similar node as newEl
+    # this guarantees that it starts with the trivial node, if possible
+    checklist = []  
+    for v in col:
+        if v._graph is gCopy:
+            checklist.append(v)
+            if v._label == newEl._label:
+                checklist[0], checklist[len(checklist) - 1] = v, checklist[0]
+
+    # returns the orbit of an generating set and a specific element, used for the second pruning rule
+    def get_orbit(x, label):
+        orb = Orbit(x, newEl._label)
+        # is the orbit in format([list], None), instead of [list]?
+        if len(orb) == 2 and orb[1] == None:
+            return orb[0]
+
+        return orb
+
+    # calculate whether D, I is trivial, used for second pruning rule
+    trivial = True
+    for i in range(0, len(verticesD)):
+        if verticesD[i]._label != verticesI[i]._label:
+            trivial = False
+            break
+
+    for v in checklist:
+        # this version of the second pruning rule only applies to branches of a trivial mapping, otherwise it should not be applied
+        # checkes whether the automorphism created with mapping newEl to (non trivial!) v is already produces by the generating set
+        if (not trivial) or (newEl._label == v._label) or (not v._label in get_orbit(x, newEl._label)):
+            res = generate_automorphisms(graph, gCopy, verticesD + [newEl], verticesI + [v], x)
+            if res:  # return to last trivial ancestor
+                for i in range(0, len(verticesD)):
+                    if verticesD[i]._label != verticesI[i]._label:
+                        return True  # not trivial, return to last trivial ancestor
+
+    return False
 
 
 def main_2():
@@ -336,6 +424,34 @@ def print_isomorphisms(path):
     print("Pairs of isomorphic graphs")
     for pair in isomorphic_pairs:
         print(pair)
+
+def check_autmorphism_generators_time(name='cubes6', id=-1):
+    t1 = datetime.now().timestamp()
+    print(t1)
+    check_autmorphism_generators(name, id)
+    t2 = datetime.now().timestamp()
+    print(t2)
+    print('difference: ', (t2 - t1))
+
+def check_autmorphism_generators(name='cubes6', id=-1):
+    # generate_autmorphisms requires that the given graphs are separate instances
+    # one could load a graph and make a deep copy, however, since no modules may
+    # be imported it is easier to load the graphs twice
+    tlist = graphIO.loadgraph('test_2/' + name + '.grl', readlist=True)
+    tlist2 = graphIO.loadgraph('test_2/' + name + '.grl', readlist=True)
+
+    ids = [id]
+    if id == -1:
+        ids = range(0, len(tlist[0]))
+
+    for i in ids:
+        bg1 = tlist[0][i]
+        bg2 = tlist2[0][i]
+
+        x = []
+        generate_automorphisms(bg1, bg2, [], [], x)
+        print("Order of the graph automorphisms in "+name+"[" + str(i) + "]: " + str(permgrputil.order(x)))
+
 
 
 def print_automorphisms(path):
