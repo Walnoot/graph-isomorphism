@@ -109,7 +109,7 @@ def create_color_dict(g, h):
 
 #see slides lecture 2 page 23
 #g and h instance of graph
-def count_isomorphism(g, h, d=[], i=[]):
+def count_isomorphism(g, h, d=[], i=[], stop_early=False):
     #colors = {}
     #color_gradient(g, h, colors)
     
