@@ -213,7 +213,7 @@ def defines_bijection(colors):
     return True
 
 
-def generate_automorphisms(graph, gCopy, verticesD, verticesI, x):
+def generate_automorphisms(graph, gCopy, verticesD, verticesI, x, firstPruningRule = True, secondPruningRule = True, membershipTesting = False):
     """
     Requires arguments gCopy to be a deepcopy of graph, parameters d, i and x should be []
     return type is irrelevant for the working principle of this function, that is reserved for internal purposes only.
@@ -242,8 +242,11 @@ def generate_automorphisms(graph, gCopy, verticesD, verticesI, x):
         # add to generating set (assuming we return to trivial node, by pruning rule #1)
         perm = permutation(len(mapping), mapping=mapping)
         if mapping != list(range(0, len(mapping))):
-            x.append(perm)
-        return True  # return to last visited trivial ancestor
+            if not membershipTesting or not permgrputil.is_member(perm, x): # membership testing?
+                x.append(perm)
+
+        
+        return True  # return to last visited trivial ancestor (if firstpruningRule)
 
     # multiple automorphisms
 
@@ -290,18 +293,19 @@ def generate_automorphisms(graph, gCopy, verticesD, verticesI, x):
 
     # calculate whether D, I is trivial, used for second pruning rule
     trivial = True
-    for i in range(0, len(verticesD)):
-        if verticesD[i]._label != verticesI[i]._label:
-            trivial = False
-            break
+    if secondPruningRule:
+        for i in range(0, len(verticesD)):
+            if verticesD[i]._label != verticesI[i]._label:
+                trivial = False
+                break
 
     for v in checklist:
         # this version of the second pruning rule only applies to branches of a trivial mapping,
         # otherwise it should not be applied checkes whether the automorphism created with mapping newEl
         # to (non trivial!) v is already produces by the generating set
-        if (not trivial) or (newEl._label == v._label) or (not v._label in get_orbit(x, newEl._label)):
-            res = generate_automorphisms(graph, gCopy, verticesD + [newEl], verticesI + [v], x)
-            if res and not trivial:  # return to last trivial ancestor
+        if (not trivial or not secondPruningRule) or (newEl._label == v._label) or (not v._label in get_orbit(x, newEl._label)):
+            res = generate_automorphisms(graph, gCopy, verticesD + [newEl], verticesI + [v], x, firstPruningRule, secondPruningRule, membershipTesting)
+            if firstPruningRule and res and not trivial:  # return to last trivial ancestor
                 return True  # not trivial, return to last trivial ancestor
 
     # No automorphism found
