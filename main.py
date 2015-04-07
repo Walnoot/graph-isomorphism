@@ -88,16 +88,16 @@ def print_automorphisms(path, optimize_iso=False):
 
 
 # debug functions
-def check_automorphisms_generators_time(name='cubes6', id=-1):
+def check_automorphisms_generators_time(name='cubes6', id=-1, firstPruningRule=True, secondPruningRule=True, membershipTesting=False):
     t1 = time()
     print(t1)
-    check_automorphisms_generators(name, id)
+    check_automorphisms_generators(name, id, firstPruningRule, secondPruningRule, membershipTesting)
     t2 = time()
     print(t2)
     print('difference: ', (t2 - t1))
 
 
-def check_automorphisms_generators(name='cubes6', id=-1):
+def check_automorphisms_generators(name='cubes6', id=-1, firstPruningRule=True, secondPruningRule=True, membershipTesting=False):
     # generate_automorphisms requires that the given graphs are separate instances
     # one could load a graph and make a deep copy, however, since no modules may
     # be imported it is easier to load the graphs twice
@@ -113,7 +113,7 @@ def check_automorphisms_generators(name='cubes6', id=-1):
         bg2 = tlist2[0][i]
 
         x = []
-        generate_automorphisms(bg1, bg2, [], [], x)
+        generate_automorphisms(bg1, bg2, [], [], x, firstPruningRule, secondPruningRule, membershipTesting)
         print("Order of the graph automorphisms in " + name + "[" + str(i) + "]: " + str(permgrputil.order(x)))
 
 
