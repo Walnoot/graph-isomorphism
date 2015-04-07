@@ -1,8 +1,9 @@
 Usage Instructions:
 
-python main.py <mode> <file>
+python main.py [-o] <mode> <file>
 
 example: python main.py -i test_2/products72.grl
+         python main.py -o -a test_2/cubes6.grl
 
 mode:
 	Can be -i, -a, or -ia.
@@ -12,3 +13,5 @@ mode:
 
 file:
 	The .grl or .gr file that will be used for the computations
+
+-o: Optimizes counting isomorphisms by using results of other isomorphic graphs
