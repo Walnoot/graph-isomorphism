@@ -118,13 +118,12 @@ def set_colors(graph, l):
     or the index in l + 1 otherwise.
     """
     for v in graph:
-        if v in l:
-            for i in range(0, len(l)):
-                if l[i] == v:
-                    v.colornum = i + 1
-                    break
-        else:
-            v.colornum = 0
+        v.colornum = 0
+    
+    i = 1
+    for v in l:
+        v.colornum = i
+        i += 1
 
 
 # see slides lecture 2 page 23
