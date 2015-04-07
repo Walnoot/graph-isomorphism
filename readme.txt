@@ -14,4 +14,4 @@ mode:
 file:
 	The .grl or .gr file that will be used for the computations
 
--o: Optimizes counting isomorphisms by using results of other isomorphic graphs
+-o: (Optional) Optimizes counting isomorphisms by using results of other isomorphic graphs
