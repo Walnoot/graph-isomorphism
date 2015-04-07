@@ -1,4 +1,4 @@
-from recolor import *
+from gi import *
 import graphIO
 
 # sys is used for argument parsing and time for benchmarking
