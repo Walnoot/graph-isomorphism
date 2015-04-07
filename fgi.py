@@ -75,11 +75,17 @@ def recolor(colors, queue):
                 partitions.setdefault(nbs_count, []).append(n)
                 # partition_sizes[nbs_count] = partition_sizes.get(nbs_count, 0) + 1
             if len(partitions) > 1:
-                smallest = min(partitions, key=lambda i: len(partitions[i]))
-                colors[nbs_c] = partitions.pop(smallest)
-                queue.add(nbs_c)
+                largest = -1
 
-                largest = max(partitions, key=lambda i: len(partitions[i]))
+                may_ommit = len(partitions) > 2 or nbs_c not in queue
+                if may_ommit:
+                    smallest = min(partitions, key=lambda i: len(partitions[i]))
+                    largest = max(partitions, key=lambda i: len(partitions[i]))
+                    colors[nbs_c] = partitions.pop(smallest)
+                else:
+                    colors[nbs_c] = partitions.popitem()[1]
+
+                queue.add(nbs_c)
                 while len(partitions) > 0:
                     nbs_count, partition = partitions.popitem()
                     new_color = len(colors)
