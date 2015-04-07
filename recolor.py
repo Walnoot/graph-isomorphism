@@ -215,17 +215,7 @@ def generate_automorphisms(graph, gCopy, verticesD, verticesI, x):
     Requires arguments gCopy to be a deepcopy of graph, parameters d, i and x should be []
     return type is irrelevant for the working principle of this function, that is reserved for internal purposes only.
     """
-
-    def set_colors(graph, l):
-        for v in graph:
-            if v in l:
-                for i in range(0, len(l)):
-                    if l[i] == v:
-                        v.colornum = i + 1
-                        break
-            else:
-                v.colornum = 0
-
+    
     # set original colors, only based on D and I
     set_colors(graph, verticesD)
     set_colors(gCopy, verticesI)
