@@ -1,11 +1,9 @@
 from basicgraphs import graph  # , GraphError, vertex, edge
-from datetime import datetime
-import graphIO
 import permgrputil
 from permv2 import permutation
 from basicpermutationgroup import Orbit
 
-
+# deprecated
 def color_gradient(bg_1, bg_2, colors):
     # types correct?
     if not (isinstance(bg_1, graph) and isinstance(bg_2, graph)):
@@ -96,8 +94,10 @@ def recolor(colors):  # bg_1, bg_2, are not used
     return True
 
 
-# creates the color dict based on the colornums of the vertices in the graph
 def create_color_dict(g, h):
+    """
+    Creates the color dict based on the colornums of the vertices in graphs g and h.
+    """
     colors = {}
     for v in g._V:
         l = colors.get(v.colornum, [])
@@ -109,6 +109,21 @@ def create_color_dict(g, h):
         colors[v.colornum] = l
 
     return colors
+
+
+def set_colors(graph, l):
+    """
+    Assigns a color to every vertex of the given graph, 0 if a vertex is not in l,
+    or the index in l + 1 otherwise.
+    """
+    for v in graph:
+        if v in l:
+            for i in range(0, len(l)):
+                if l[i] == v:
+                    v.colornum = i + 1
+                    break
+        else:
+            v.colornum = 0
 
 
 # see slides lecture 2 page 23
@@ -126,20 +141,7 @@ def count_isomorphism(g, h, d=None, i=None, stop_early=False):
         d = []
     if i is None:
         i = []
-
-    # colors = {}
-    # color_gradient(g, h, colors)
-
-    def set_colors(graph, l):
-        for v in graph:
-            if v in l:
-                for i in range(0, len(l)):
-                    if l[i] == v:
-                        v.colornum = i + 1
-                        break
-            else:
-                v.colornum = 0
-
+    
     set_colors(g, d)
     set_colors(h, i)
     colors = create_color_dict(g, h)
@@ -208,45 +210,10 @@ def defines_bijection(colors):
     return True
 
 
-def create_bg1():
-    bg = graph(7)
-    bg.addedge(bg[0], bg[1])
-    bg.addedge(bg[1], bg[2])
-    bg.addedge(bg[2], bg[3])
-    bg.addedge(bg[2], bg[4])
-    bg.addedge(bg[3], bg[4])
-    bg.addedge(bg[4], bg[5])
-    bg.addedge(bg[5], bg[6])
-
-    return bg
-
-
-def create_bg2():
-    bg = graph(7)
-    bg.addedge(bg[0], bg[2])
-    bg.addedge(bg[2], bg[3])
-    bg.addedge(bg[2], bg[4])
-    bg.addedge(bg[3], bg[4])
-    bg.addedge(bg[1], bg[4])
-    bg.addedge(bg[1], bg[5])
-    bg.addedge(bg[5], bg[6])
-
-    return bg
-
-
-def main():
-    colors = []
-    bg1 = create_bg1()
-    bg2 = create_bg2()
-    color_gradient(bg1, bg2, colors)
-
-    recolor(colors)  # bg1, bg2,
-
-
-def generate_automorphisms(graph, gCopy, verticesD, verticesI, x):  # lowercamelcase #ftw #yolo
+def generate_automorphisms(graph, gCopy, verticesD, verticesI, x):
     """
-    requires arguments gCopy to be a deepcopy of graph, parameters d, i and x should be []
-    return type is irrelevant for the working principle of this function, that is reserved for internal purposes only
+    Requires arguments gCopy to be a deepcopy of graph, parameters d, i and x should be []
+    return type is irrelevant for the working principle of this function, that is reserved for internal purposes only.
     """
 
     def set_colors(graph, l):
@@ -348,113 +315,8 @@ def generate_automorphisms(graph, gCopy, verticesD, verticesI, x):  # lowercamel
     return False
 
 
-def main_2():
-    # crefBM_2_49 : These two graphs are isomorphic
-    # crefBM_4_7 : 1 and 3 are isomorphic, 0 and 2 remain undecided, and all other pairs are not isomorphic.
-    # crefBM_4_9 : 0 and 3 are isomorphic, 1 and 2 are isomorphic, and all other pairs are not isomorphic.
-    # crefBM_6_15 : 0 and 1 are isomorphic, as well as 2 and 3. Graphs 4 and 5 remain undecided,
-    # and all other pairs of graphs are not isomorphic
-
-    # tlist = graphIO.loadgraph('GI_TestInstancesWeek1/crefBM_4_7.grl', readlist=True)
-    # tlist = graphIO.loadgraph('GI_TestInstancesWeek1/crefBM_6_15.grl', readlist=True)
-    tlist = graphIO.loadgraph('GI_TestInstancesWeek1/crefBM_4_4098.grl', readlist=True)
-
-    bg1 = tlist[0][0]
-    bg2 = tlist[0][1]
-    colors = {0: bg1._V + bg2._V}
-    # color_gradient(bg1, bg2, colors)
-    # print(bg1)
-    # print(bg2)
-    print(recolor(colors))  # bg1, bg2,
-
-    graphIO.writeDOT(bg1, 'res_1')
-    graphIO.writeDOT(bg2, 'res_2')
-
-
-def print_isomorphisms(path):
-    graphs = graphIO.loadgraph(path, readlist=True)[0]
-
-    checked_pairs = []
-    isomorphic_pairs = []
-
-    for i in range(len(graphs)):
-        for j in range(len(graphs)):
-            g = graphs[i]
-            h = graphs[j]
-
-            pair = (i, j)
-            if i != j and not (j, i) in checked_pairs:  # dont do automorphisms, dont do pairs twice
-                if count_isomorphism(g, h, stop_early=True) > 0:
-                    isomorphic_pairs.append(pair)
-                checked_pairs.append(pair)
-
-    isomorphic_pairs.sort()
-    print("Pairs of isomorphic graphs")
-    for pair in isomorphic_pairs:
-        print(pair)
-
-
-def check_autmorphism_generators_time(name='cubes6', id=-1):
-    t1 = datetime.now().timestamp()
-    print(t1)
-    check_autmorphism_generators(name, id)
-    t2 = datetime.now().timestamp()
-    print(t2)
-    print('difference: ', (t2 - t1))
-
-
-def check_autmorphism_generators(name='cubes6', id=-1):
-    # generate_autmorphisms requires that the given graphs are separate instances
-    # one could load a graph and make a deep copy, however, since no modules may
-    # be imported it is easier to load the graphs twice
-    tlist = graphIO.loadgraph('test_2/' + name + '.grl', readlist=True)
-    tlist2 = graphIO.loadgraph('test_2/' + name + '.grl', readlist=True)
-
-    ids = [id]
-    if id == -1:
-        ids = range(0, len(tlist[0]))
-
-    for i in ids:
-        bg1 = tlist[0][i]
-        bg2 = tlist2[0][i]
-
-        x = []
-        generate_automorphisms(bg1, bg2, [], [], x)
-        print("Order of the graph automorphisms in " + name + "[" + str(i) + "]: " + str(permgrputil.order(x)))
-
-
-def print_automorphisms(path):
-    # count_isomorphisms requires that the given graphs are separate instances
-    # one could load a graph and make a deep copy, however, since no modules may
-    # be imported it is easier to load the graphs twice
-    graphs1 = graphIO.loadgraph(path, readlist=True)[0]
-    graphs2 = graphIO.loadgraph(path, readlist=True)[0]
-
-    print("╔═════════╦══════════════╗")
-    print("║Graph:   ║#Automorphisms║")
-    print("╠═════════╬══════════════╣")
-    for i in range(len(graphs1)):
-        aut = count_isomorphism(graphs1[i], graphs2[i])
-        
-        print("║{:>9}║{:>14}║".format(i, aut))
-    print("╚═════════╩══════════════╝")
-
-
-def main_3():
-    tlist = graphIO.loadgraph('GI_TestInstancesWeek1/crefBM_6_15.grl', readlist=True)
-    bg1 = tlist[0][4]
-    bg2 = tlist[0][5]
-
-    print(count_isomorphism(bg1, bg2, stop_early=True))
-
-    # graphIO.writeDOT(bg1, 'res_1')
-    # graphIO.writeDOT(bg2, 'res_2')
-
-
-def speed_test():
-    t1 = datetime.now().timestamp()
-    print(t1)
-    main_2()
-    t2 = datetime.now().timestamp()
-    print(t2)
-    print('difference: ', (t2 - t1))
+def count_automorphisms(graph, graphCopy):
+    x = []
+    generate_automorphisms(graph, graphCopy, [], [], x)
+    
+    return permgrputil.order(x)
