@@ -3,6 +3,7 @@ import permgrputil
 from permv2 import permutation
 from basicpermutationgroup import Orbit
 
+
 # deprecated
 def color_gradient(bg_1, bg_2, colors):
     # types correct?
@@ -141,7 +142,7 @@ def count_isomorphism(g, h, d=None, i=None, stop_early=False):
         d = []
     if i is None:
         i = []
-    
+
     set_colors(g, d)
     set_colors(h, i)
     colors = create_color_dict(g, h)
@@ -308,5 +309,5 @@ def generate_automorphisms(graph, gCopy, verticesD, verticesI, x):
 def count_automorphisms(graph, graphCopy):
     x = []
     generate_automorphisms(graph, graphCopy, [], [], x)
-    
+
     return permgrputil.order(x)
