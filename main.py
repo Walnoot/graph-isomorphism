@@ -7,12 +7,8 @@ from time import time
 import sys
 
 
-def print_isomorphisms(path, aut=False):
+def print_isomorphisms(path):
     graphs = graphIO.loadgraph(path, readlist=True)[0]
-    graphCopy = None
-    
-    if(aut):
-        graphCopy = graphIO.loadgraph(path, readlist=True)[0]  # in case we want the number of automorphisms as well
 
     checked_pairs = []
     isomorphic_pairs = []
@@ -23,23 +19,19 @@ def print_isomorphisms(path, aut=False):
             h = graphs[j]
 
             pair = (i, j)
-            if i != j and not (j, i) in checked_pairs:  # dont do automorphisms, dont do pairs twice
+            if i != j and not (j, i) in checked_pairs:  # do not do automorphisms, do not do pairs twice
                 if count_isomorphism(g, h, stop_early=True) > 0:
                     isomorphic_pairs.append(pair)
                 checked_pairs.append(pair)
 
     isomorphic_pairs.sort()
-    print("╔════════════════╦══════════════╗")
-    print("║Isomorphic pairs║#Automorphisms║")
-    print("╠════════════════╬══════════════╣")
+    print("╔════════════════╗")
+    print("║Isomorphic pairs║")
+    print("╠════════════════╣")
     
     for pair in isomorphic_pairs:
-        num = "-"
-        if aut:
-            num = str(count_automorphisms(graphs[pair[0]], graphCopy[pair[0]]))
-        
-        print("║{:>16}║{:>14}║".format(pair, num))
-    print("╚════════════════╩══════════════╝")
+        print("║{:>16}║".format(str(pair)))
+    print("╚════════════════╝")
 
 
 def print_automorphisms(path):
@@ -53,7 +45,7 @@ def print_automorphisms(path):
     print("║Graph    ║#Automorphisms║")
     print("╠═════════╬══════════════╣")
     for i in range(len(graphs1)):
-        #aut = count_isomorphism(graphs1[i], graphs2[i])
+        # aut = count_isomorphism(graphs1[i], graphs2[i])
         aut = count_automorphisms(graphs1[i], graphs2[i])
         
         print("║{:>9}║{:>14}║".format(i, aut))
@@ -102,8 +94,9 @@ if __name__ == "__main__":
         print_isomorphisms(path)
     elif mode == "-a":
         print_automorphisms(path)
-    elif mode == "-ia":
-        print_isomorphisms(path, aut=True)
+    elif mode == "-ia" or mode == "-ai":
+        print_isomorphisms(path)
+        print_automorphisms(path)
     else:
         print("unknown option")
         exit(1)
