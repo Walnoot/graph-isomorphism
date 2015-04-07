@@ -53,17 +53,17 @@ def print_automorphisms(path):
 
 
 # debug functions
-def check_autmorphism_generators_time(name='cubes6', id=-1):
+def check_automorphisms_generators_time(name='cubes6', id=-1):
     t1 = time()
     print(t1)
-    check_autmorphism_generators(name, id)
+    check_automorphisms_generators(name, id)
     t2 = time()
     print(t2)
     print('difference: ', (t2 - t1))
 
 
-def check_autmorphism_generators(name='cubes6', id=-1):
-    # generate_autmorphisms requires that the given graphs are separate instances
+def check_automorphisms_generators(name='cubes6', id=-1):
+    # generate_automorphisms requires that the given graphs are separate instances
     # one could load a graph and make a deep copy, however, since no modules may
     # be imported it is easier to load the graphs twice
     tlist = graphIO.loadgraph('test_2/' + name + '.grl', readlist=True)
