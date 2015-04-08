@@ -66,13 +66,14 @@ def recolor(colors):  # bg_1, bg_2, are not used
             else:
                 c_list = []  # list with tuples ([neighbour colors], vertex)
                 # for each vertex in the current list, the list of the current 'color'
+                c_list_append = c_list.append
                 for v in c:
                     l_item = []  # list with colors of all neighbours of current vertex
                     for n in v.get_cached_nbs():
                         l_item.append(n.colornum)
 
                     l_item.sort()
-                    c_list.append((l_item, v))
+                    c_list_append((l_item, v))
                 c_list.sort()
 
                 cur_color = c_list[0][1].colornum
@@ -100,12 +101,13 @@ def create_color_dict(g, h):
     Creates the color dict based on the colornums of the vertices in graphs g and h.
     """
     colors = {}
+    colors_get = colors.get
     for v in g._V:
-        l = colors.get(v.colornum, [])
+        l = colors_get(v.colornum, [])
         l.append(v)
         colors[v.colornum] = l
     for v in h._V:
-        l = colors.get(v.colornum, [])
+        l = colors_get(v.colornum, [])
         l.append(v)
         colors[v.colornum] = l
 
@@ -276,9 +278,10 @@ def generate_automorphisms(graph, gCopy, verticesD, verticesI, x, firstPruningRu
     # build list of vertices of gCopy to check, while also looking for a similar node as newEl
     # this guarantees that it starts with the trivial node, if possible
     checklist = []
+    checklist_append = checklist.append
     for v in col:
         if v._graph is gCopy:
-            checklist.append(v)
+            checklist_append(v)
             if v._label == newEl._label:
                 checklist[0], checklist[len(checklist) - 1] = v, checklist[0]
 
