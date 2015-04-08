@@ -15,3 +15,5 @@ file:
 	The .grl or .gr file that will be used for the computations
 
 -o: (Optional) Optimizes counting isomorphisms by using results of other isomorphic graphs
+
+You can change "from gi import *" to "from fgi import *" in main.py to use fast coloring, which is faster in some cases, and slower in other
