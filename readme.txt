@@ -14,4 +14,8 @@ mode:
 file:
 	The .grl or .gr file that will be used for the computations
 
--o: Optimizes counting isomorphisms by using results of other isomorphic graphs
+-o: (Optional) Optimizes counting isomorphisms by using results of other isomorphic graphs
+
+Alternetively, you can import main in a python shell and call print_isomorphisms or print_automorphisms from there.
+
+You can change "from gi import *" to "from fgi import *" in main.py to use fast coloring, which is faster in some cases, and slower in other
