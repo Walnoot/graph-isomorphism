@@ -3,6 +3,7 @@ import graphIO
 
 # sys is used for argument parsing and time for benchmarking
 # neither imports are used for the actual algorithms
+# (discussed and approved by Paul Bonsma)
 from time import time
 import sys
 
