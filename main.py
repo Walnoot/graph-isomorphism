@@ -89,7 +89,7 @@ def print_automorphisms(path, optimize_iso=False):
 
 
 # debug functions
-def check_automorphisms_generators_time(name='cubes6', id=-1, firstPruningRule=True, secondPruningRule=True, membershipTesting=False):
+def check_automorphisms_generators_time(name='test_2/cubes6.grl', id=-1, firstPruningRule=True, secondPruningRule=True, membershipTesting=False):
     t1 = time()
     print(t1)
     check_automorphisms_generators(name, id, firstPruningRule, secondPruningRule, membershipTesting)
@@ -98,7 +98,7 @@ def check_automorphisms_generators_time(name='cubes6', id=-1, firstPruningRule=T
     print('difference: ', (t2 - t1))
 
 
-def check_automorphisms_generators(name='cubes6', id=-1, firstPruningRule=True, secondPruningRule=True, membershipTesting=False):
+def check_automorphisms_generators(name='test_2/cubes6.grl', id=-1, firstPruningRule=True, secondPruningRule=True, membershipTesting=False):
     # generate_automorphisms requires that the given graphs are separate instances
     # one could load a graph and make a deep copy, however, since no modules may
     # be imported it is easier to load the graphs twice
