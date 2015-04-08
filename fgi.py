@@ -57,6 +57,9 @@ def recolor(colors, queue):
     while len(queue) > 0:
         c = queue.pop()
 
+        if len(colors[c]) % 2 == 1:
+            return False
+
         neighbours = {}  # for all neighboring vertexes the number of neighbours they have in c
         nbs_colors = set()  # all neighboring colors
         for v in colors[c]:
@@ -77,8 +80,8 @@ def recolor(colors, queue):
             if len(partitions) > 1:
                 largest = -1
 
-                may_ommit = len(partitions) > 2 or nbs_c not in queue
-                if may_ommit:
+                may_omit = len(partitions) > 2 or nbs_c not in queue
+                if may_omit:
                     smallest = min(partitions, key=lambda i: len(partitions[i]))
                     largest = max(partitions, key=lambda i: len(partitions[i]))
                     colors[nbs_c] = partitions.pop(smallest)
