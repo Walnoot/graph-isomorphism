@@ -85,3 +85,6 @@ crashlytics-build.properties
 
 # exlude res_* files
 res_*
+
+#compo
+pd/
