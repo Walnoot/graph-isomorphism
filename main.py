@@ -101,8 +101,8 @@ def check_automorphisms_generators(name='cubes6', id=-1, firstPruningRule=True, 
     # generate_automorphisms requires that the given graphs are separate instances
     # one could load a graph and make a deep copy, however, since no modules may
     # be imported it is easier to load the graphs twice
-    tlist = graphIO.loadgraph('test_2/' + name + '.grl', readlist=True)
-    tlist2 = graphIO.loadgraph('test_2/' + name + '.grl', readlist=True)
+    tlist = graphIO.loadgraph('' + name + '', readlist=True)
+    tlist2 = graphIO.loadgraph('' + name + '', readlist=True)
 
     ids = [id]
     if id == -1:
